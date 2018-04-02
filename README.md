@@ -1,7 +1,7 @@
 # pkg93
 
 ## Installation
-Unfinished!
+Install the userscript in this repository named "injector.js".
 
 ## Making a repository
 Firstly, make sure that [CORS is enabled on your webserver](https://enable-cors.org/server.html).
