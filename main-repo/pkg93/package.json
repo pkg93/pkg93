@@ -1,5 +1,0 @@
-{
-  "name": "pkg93",
-  "version": [0, 1, 0],
-  "inject": "pkg93.js"
-}
