@@ -44,6 +44,9 @@ var failed = false;
 console.log("[pkg93] Injecting packages...");
 try {
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
+  config.installed.forEach(function (pkg) {
+    eval(localStorage[".pkg93/downloaded/" + pkg + ".js"]);
+  });
 } catch (err) {
   console.error("[pkg93] Couldn't load package information.");
   failed = true;
