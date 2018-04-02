@@ -35,7 +35,7 @@ example-repo
 │   │ (package files go here)
 │   └── package.json
 └── examplepkg3
-│   │ (package files go here)
+    │ (package files go here)
     └── package.json
 ```
 

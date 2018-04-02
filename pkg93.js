@@ -45,7 +45,7 @@ console.log("[pkg93] Injecting packages...");
 try {
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
   config.installed.forEach(function (pkg) {
-    eval(localStorage[".pkg93/downloaded/" + pkg + ".js"]);
+    eval(localStorage[".pkg93/packages/" + pkg + ".js"]);
   });
 } catch (err) {
   console.error("[pkg93] Couldn't load package information.");
@@ -62,8 +62,8 @@ le._apps.pkg93 = {
     if (localStorage[".pkg93/config.json"] === undefined) {
       localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
     }
-    if (localStorage[".pkg93/downloaded/"] === undefined) {
-      localStorage[".pkg93/downloaded/"] = "";
+    if (localStorage[".pkg93/packages/"] === undefined) {
+      localStorage[".pkg93/packages/"] = "";
     }
     localStorage[".pkg93/README.txt"] = "WARNING!\nThis folder contains important data about pkg93. Do not edit anything in here unless you want pkg93 to not work!\n\n~1024x2";
     var config = JSON.parse(localStorage[".pkg93/config.json"]);
@@ -126,9 +126,15 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>
           try {
             request.send(null);
             var json = JSON.parse(request.responseText);
+            localStorage[".pkg93/packages/" + pkgname + ".json"] = request.responseText;
             request.open('GET', pkgsource + "/" + pkgname + "/" + json.inject, false);
             request.send(null);
-            localStorage[".pkg93/downloaded/" + pkgname + ".js"] = request.responseText;
+            localStorage[".pkg93/packages/" + pkgname + ".js"] = request.responseText;
+            if (!!json.uninstall) {
+              request.open('GET', pkgsource + "/" + pkgname + "/" + json.inject, false);
+              request.send(null);
+              localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = request.responseText;
+            }
             eval(request.responseText);
             $log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
             config.installed.push(pkgname);
@@ -142,8 +148,11 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>
         $log("<b><span style='color:#f00'>ERR</span></b>  No package specified.");
       } else if (protected.includes(args[1])) {
         $log("<b><span style='color:#f00'>ERR</span></b>  You're trying to modify a pre-installed Windows93 app.\n      <b>Don't do that!</b>");
-      } else if (!!localStorage[".pkg93/downloaded/un" + args[1] + ".js"]) {
-        eval(localStorage[".pkg93/downloaded/un" + args[1] + ".js"]); // Typing eval makes me feel dirty.
+      } else if (!!localStorage[".pkg93/packages/" + args[1] + ".rm.js"]) {
+        eval(localStorage[".pkg93/packages/" + args[1] + ".rm.js"]); // Typing eval makes me feel dirty.
+        localStorage[".pkg93/packages/" + args[1] + ".rm.js"] = null;
+        localStorage[".pkg93/packages/" + args[1] + ".js"] = null;
+        localStorage[".pkg93/packages/" + args[1] + ".json"] = null;
       } else {
         var index = config.installed.indexOf(args[1]);
         if (index < 0) {
@@ -154,6 +163,9 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>
               $log("<b><span style='color:#f00'>ERR</span></b>  Already removed.");
             } else {
               le._apps[config.installed[index]] = null;
+              localStorage[".pkg93/packages/" + config.installed[index]] + ".rm.js"] = null;
+              localStorage[".pkg93/packages/" + config.installed[index]] + ".js"] = null;
+              localStorage[".pkg93/packages/" + config.installed[index]] + ".json"] = null;
               config.installed = config.installed.splice(index, 1);
               $log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
             }
