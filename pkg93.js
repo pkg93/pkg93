@@ -51,9 +51,6 @@ try {
   console.error("[pkg93] Couldn't load package information.");
   failed = true;
 }
-if (!failed) {
-  console.log("[pkg93] Not implemented.")
-}
 console.log("[pkg93] Done!");
 console.groupEnd();
 
