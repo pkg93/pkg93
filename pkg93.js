@@ -58,7 +58,7 @@ le._apps.pkg93 = {
   exec: function() {
     const protected = ["3d","acid","acidbox","ansi","anthology","arena93","bananamp","base64","bytebeat","calc","castlegafa","catex","cd","clear","clearhist","clippy","code","contact","crazy","defrag","dmg","do a barrel roll","doctor","download","find","font","format","fullscreen","fx","gameoflife","glitch","global thermonuclear war","gravity","hampster","hello","help","hexed","history","hl3","hydra","ie6","iframe","img","info","js","key","killall","layer","lenna","lisa","ls","manifesto","marburg","messenger","mines","necronomicoin","pd","piskel","pkg93","pony","potato","progressquest","pwd","reboot","robby","rotate","shutdown","skifree","solitude","speech","starwars","superplayer","takethis","terminal","textarea","tree","trollbox","vega","virtualpc","vm","wat","whatif","whois","win","zkype"];
     const args = this.arg.arguments;
-    const version = "v0.1.0";
+    const version = "v1.0.0";
     if (localStorage[".pkg93/config.json"] === undefined) {
       localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
     }
@@ -154,6 +154,7 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>
               $log("<b><span style='color:#f00'>ERR</span></b>  Already removed.");
             } else {
               le._apps[config.installed[index]] = null;
+              config.installed = config.installed.splice(index, 1);
               $log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
             }
           } catch (err) {
@@ -164,16 +165,26 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>
     } else if (args[0] == "add-repo") {
       try {
         config.repos.push(args[1]); // well, that was easy
-        $log("<b><span style='color:#0f0'>OK</span></b>   Done!");
+        $log("<b><span style='color:#0f0'>OK</span></b>   Done!\n     Run \"pkg93 pull\" to update the package listing.");
       } catch (err) {
         $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
       }
     } else if (args[0] == "rm-repo") {
       try {
         config.repos = config.repos.splice(parseInt(args[1]), 1);
-        $log("<b><span style='color:#0f0'>OK</span></b>   Done!");
+        $log("<b><span style='color:#0f0'>OK</span></b>   Done!\n     Run \"pkg93 pull\" to update the package listing.");
       } catch (err) {
         $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+      }
+    } else if (args[0] == "ls") {
+      if (args[1] == "pkgs") {
+        $log(config.pkglist.join("\n"));
+      } else if (args[1] == "installed") {
+        $log(config.installed.join("\n"));
+      } else if (args[1] == "repos") {
+        $log(config.repos.join("\n"));
+      } else {
+        $log("<b><span style='color:#f00'>ERR</span></b>  You must select either pkgs, installed, or repos.");
       }
     } else {
       $log("<b><span style='color:#f00'>ERR</span></b>  Invalid command. Type \"pkg93\" without any arguments for help.");
