@@ -60,7 +60,7 @@ le._apps.pkg93 = {
     const args = this.arg.arguments;
     const version = "v0.1.0";
     if (localStorage[".pkg93/config.json"] === undefined) {
-      localStorage[".pkg93/config.json"] = '{"sources": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
+      localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
     }
     if (localStorage[".pkg93/downloaded/"] === undefined) {
       localStorage[".pkg93/downloaded/"] = "";
@@ -91,7 +91,7 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>
     } else if (args[0] == "pull") {
       var pkgs = [];
       config.pkglist = [];
-      config.sources.forEach(function (source) {
+      config.repos.forEach(function (source) {
         $log("<b><span style='color:#f0f'>GET</span></b>  " + source);
         request.open('GET', source + "/repo.json", false);
         try {
@@ -160,6 +160,20 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>
             $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
           }
         }
+      }
+    } else if (args[0] == "add-repo") {
+      try {
+        config.repos.push(args[1]); // well, that was easy
+        $log("<b><span style='color:#0f0'>OK</span></b>   Done!");
+      } catch (err) {
+        $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+      }
+    } else if (args[0] == "rm-repo") {
+      try {
+        config.repos = config.repos.splice(parseInt(args[1]), 1);
+        $log("<b><span style='color:#0f0'>OK</span></b>   Done!");
+      } catch (err) {
+        $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
       }
     } else {
       $log("<b><span style='color:#f00'>ERR</span></b>  Invalid command. Type \"pkg93\" without any arguments for help.");
