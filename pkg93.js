@@ -219,7 +219,7 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>`;
     }
     localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
-  icon: "/c/sys/skins/w93/install.png",
+  icon: "//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png",
   terminal: true,
   hascli: true,
   categories: "Network;"
