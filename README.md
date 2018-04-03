@@ -3,6 +3,9 @@
 ## Installation
 Install the userscript in this repository named "inject.user.js".
 
+## Adding my package to the main repoistory
+Go [here](https://github.com/1024x2/pkg93-mainrepo) for more info.
+
 ## Making a repository
 Firstly, make sure that [CORS is enabled on your webserver](https://enable-cors.org/server.html).
 If it isn't on, your users will be unable to download packages!
