@@ -21,7 +21,7 @@ var interval = setInterval(function () {
   try {
     if (!!le) {
       clearInterval(interval);
-      loadJS("https://cdn.rawgit.com/1024x2/pkg93/ae2c5fe1/pkg93.js", function () {});
+      loadJS("https://rawgit.com/1024x2/pkg93/master/pkg93.js", function () {});
       $notif("pkg93 loaded successfully!");
     }
   } catch (err) {
