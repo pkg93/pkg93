@@ -126,32 +126,31 @@ var pkg93 = {
   },
   rm: function(pkg) {
     var request = new XMLHttpRequest();
-    if (!!localStorage[".pkg93/packages/" + pkg + ".rm.js"]) {
+    var index = config.installed.indexOf(pkg);
+    if (index < 0) {
+      $log("<b><span style='color:#f00'>ERR</span></b>  Not found.");
+      return false;
+    } else if (!!localStorage[".pkg93/packages/" + pkg + ".rm.js"]) {
       eval(localStorage[".pkg93/packages/" + pkg + ".rm.js"]); // Typing eval makes me feel dirty.
+      delete le._apps[config.installed[index]];
       delete localStorage[".pkg93/packages/" + pkg + ".rm.js"]
       delete localStorage[".pkg93/packages/" + pkg + ".js"]
       delete localStorage[".pkg93/packages/" + pkg + ".json"]
     } else {
-      var index = config.installed.indexOf(pkg);
-      if (index < 0) {
-        $log("<b><span style='color:#f00'>ERR</span></b>  Not found.");
-        return false;
-      } else {
-        try {
-          if (le._apps[config.installed[index]] === null) {
-            $log("<b><span style='color:#f00'>ERR</span></b>  Already removed.");
-          } else {
-            delete le._apps[config.installed[index]];
-            delete localStorage[".pkg93/packages/" + config.installed[index] + ".js"];
-            delete localStorage[".pkg93/packages/" + config.installed[index] + ".json"];
-            config.installed.splice(index, 1);
-            $log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
-          }
-          return true;
-        } catch (err) {
-          $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-          return false;
+      try {
+        if (le._apps[config.installed[index]] === null) {
+          $log("<b><span style='color:#f00'>ERR</span></b>  Already removed.");
+        } else {
+          delete le._apps[config.installed[index]];
+          delete localStorage[".pkg93/packages/" + config.installed[index] + ".js"];
+          delete localStorage[".pkg93/packages/" + config.installed[index] + ".json"];
+          config.installed.splice(index, 1);
+          $log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
         }
+        return true;
+      } catch (err) {
+        $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+        return false;
       }
     }
   }
