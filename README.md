@@ -13,13 +13,13 @@ If it isn't on, your users will be unable to download packages!
 Secondly you need to create a repo.json in the folder where you want your repository to be in.
 In it, there should be 4 keys.
 - `name` This is your repo's name.
-- `msg` This is your repo's message to all visitors.
+- `msg` This is your repo's message to all users. You can set it to anything you want!
 - `packages` This is an array containing all the names of packages.
 Here's an example:
 ```json
 {
   "name": "Example of a repo.json",
-  "motd": "This is an example repo.json",
+  "msg": "This is an example repo.json",
   "packages": [
     "examplepkg1",
     "examplepkg2",
