@@ -72,7 +72,7 @@ var pkg93 = {
         request.send(null);
         var json = JSON.parse(request.responseText);
         $log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
-        $log("<b><span style='color:#0f0'>MOTD</span></b> \"" + json.motd + "\"");
+        $log("<b><span style='color:#0f0'>MSG</span></b>  \"" + json.motd + "\"");
         json.packages.forEach(function(item) {
           try {
             $log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);

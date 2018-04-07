@@ -1,4 +1,5 @@
 # pkg93
+A package manager for Windows 93!
 
 ## Installation
 Install the userscript in this repository named "inject.user.js".
