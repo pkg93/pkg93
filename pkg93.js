@@ -214,7 +214,7 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>`;
       } else if (args[1] == "repos") {
         lerepos = "";
         config.repos.forEach(function (repo, index) {
-          lerepos += "[" + index + "] " + repo;
+          lerepos += "[" + index + "] " + repo + "<br>";
         });
         $log(lerepos);
       } else {
