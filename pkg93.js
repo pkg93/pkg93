@@ -193,6 +193,7 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>`;
     } else if (args[0] == "add-repo") {
       try {
         config.repos.push(args[1]); // well, that was easy
+        localStorage[".pkg93/config.json"] = JSON.stringify(config);
         $log("<b><span style='color:#0f0'>OK</span></b>   Done!\n     Run \"pkg93 pull\" to update the package listing.");
       } catch (err) {
         $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
