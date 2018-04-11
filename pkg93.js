@@ -17,6 +17,10 @@
 console.group("[pkg93]");
 console.log("[pkg93] Injecting packages...");
 try {
+  if (localStorage[".pkg93/config.json"] === undefined) {
+    console.log("[pkg93] You seem new. Creating config...");
+    localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
+  }
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
   config.installed.forEach(function (pkg) {
     eval(localStorage[".pkg93/packages/" + pkg + ".js"]);
@@ -144,7 +148,7 @@ le._apps.pkg93 = {
   exec: function() {
     const protected = ["3d","acid","acidbox","ansi","anthology","arena93","bananamp","base64","bytebeat","calc","castlegafa","catex","cd","clear","clearhist","clippy","code","contact","crazy","defrag","dmg","do a barrel roll","doctor","download","find","font","format","fullscreen","fx","gameoflife","glitch","global thermonuclear war","gravity","hampster","hello","help","hexed","history","hl3","hydra","ie6","iframe","img","info","js","key","killall","layer","lenna","lisa","ls","manifesto","marburg","messenger","mines","necronomicoin","pd","piskel","pkg93","pony","potato","progressquest","pwd","reboot","robby","rotate","shutdown","skifree","solitude","speech","starwars","superplayer","takethis","terminal","textarea","tree","trollbox","vega","virtualpc","vm","wat","whatif","whois","win","zkype"];
     const args = this.arg.arguments;
-    const version = "v1.1.1";
+    const version = "v1.1.2";
     const help = `<b>pkg93 ${version}</b>
 <b>Usage:</b> pkg93 [command]
 
