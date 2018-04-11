@@ -14,31 +14,6 @@
  *               ~1024x2   *
  ***************************/
 
-// Thanks, Draco!
-function loadJS (source, onready){
-  var sc = document.createElement("script");
-  sc.src = source;
-  sc.type = "text/javascript";
-  if (onready) sc.addEventListener("load", onready);
-  document.head.appendChild(sc);
-  return sc;
-}
-
-// Taken from https://github.com/substack/semver-compare, thanks substack!
-function cmp (a, b) {
-  var pa = a.split('.');
-  var pb = b.split('.');
-  for (var i = 0; i < 3; i++) {
-    var na = Number(pa[i]);
-    var nb = Number(pb[i]);
-    if (na > nb) return 1;
-    if (nb > na) return -1;
-    if (!isNaN(na) && isNaN(nb)) return 1;
-    if (isNaN(na) && !isNaN(nb)) return -1;
-  }
-  return 0;
-}
-
 console.group("[pkg93]");
 console.log("[pkg93] Injecting packages...");
 try {
@@ -72,7 +47,7 @@ var pkg93 = {
         request.send(null);
         var json = JSON.parse(request.responseText);
         $log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
-        $log("<b><span style='color:#0f0'>MSG</span></b>  \"" + json.motd + "\"");
+        $log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
         json.packages.forEach(function(item) {
           try {
             $log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
@@ -87,6 +62,7 @@ var pkg93 = {
         $log(request.responseText);
       }
     });
+    localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
   get: function(pkg) {
     var request = new XMLHttpRequest();
@@ -109,14 +85,17 @@ var pkg93 = {
         request.open('GET', pkgsource + "/" + pkgname + "/" + json.inject, false);
         request.send(null);
         localStorage[".pkg93/packages/" + pkgname + ".js"] = request.responseText;
-        if (!!json.uninstall) {
-          request.open('GET', pkgsource + "/" + pkgname + "/" + json.inject, false);
+        eval(request.responseText);
+        if (json.uninstall) {
+          request.open('GET', pkgsource + "/" + pkgname + "/" + json.uninstall, false);
           request.send(null);
           localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = request.responseText;
         }
-        eval(request.responseText);
         $log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
-        config.installed.push(pkgname);
+        if (!config.installed.includes(pkgname)) {
+          config.installed.push(pkgname);
+        }
+        localStorage[".pkg93/config.json"] = JSON.stringify(config);
         return true;
       } catch (err) {
         $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
@@ -136,17 +115,22 @@ var pkg93 = {
       delete localStorage[".pkg93/packages/" + pkg + ".rm.js"]
       delete localStorage[".pkg93/packages/" + pkg + ".js"]
       delete localStorage[".pkg93/packages/" + pkg + ".json"]
+      config.installed.splice(index, 1);
+      $log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
     } else {
       try {
         if (le._apps[config.installed[index]] === null) {
           $log("<b><span style='color:#f00'>ERR</span></b>  Already removed.");
+          return false;
         } else {
           delete le._apps[config.installed[index]];
           delete localStorage[".pkg93/packages/" + config.installed[index] + ".js"];
           delete localStorage[".pkg93/packages/" + config.installed[index] + ".json"];
+
           config.installed.splice(index, 1);
           $log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
         }
+        localStorage[".pkg93/config.json"] = JSON.stringify(config);
         return true;
       } catch (err) {
         $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
@@ -160,7 +144,7 @@ le._apps.pkg93 = {
   exec: function() {
     const protected = ["3d","acid","acidbox","ansi","anthology","arena93","bananamp","base64","bytebeat","calc","castlegafa","catex","cd","clear","clearhist","clippy","code","contact","crazy","defrag","dmg","do a barrel roll","doctor","download","find","font","format","fullscreen","fx","gameoflife","glitch","global thermonuclear war","gravity","hampster","hello","help","hexed","history","hl3","hydra","ie6","iframe","img","info","js","key","killall","layer","lenna","lisa","ls","manifesto","marburg","messenger","mines","necronomicoin","pd","piskel","pkg93","pony","potato","progressquest","pwd","reboot","robby","rotate","shutdown","skifree","solitude","speech","starwars","superplayer","takethis","terminal","textarea","tree","trollbox","vega","virtualpc","vm","wat","whatif","whois","win","zkype"];
     const args = this.arg.arguments;
-    const version = "v1.1.0";
+    const version = "v1.1.1";
     const help = `<b>pkg93 ${version}</b>
 <b>Usage:</b> pkg93 [command]
 
@@ -245,7 +229,6 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>`;
     } else {
       $log("<b><span style='color:#f00'>ERR</span></b>  Invalid command. Type \"pkg93\" without any arguments for help.");
     }
-    localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
   icon: "//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png",
   terminal: true,
