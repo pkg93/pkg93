@@ -40,9 +40,9 @@ var pkg93 = {
     }
   },
   pull: function() {
+    var config = pkg93.getConfig();
     var request = new XMLHttpRequest();
     $log("<b><span style='color:#ff0'>WARN</span></b> Windows93 may lag while getting packages.\n      This is a normal thing.");
-    var pkgs = [];
     config.pkglist = [];
     config.repos.forEach(function (source) {
       $log("<b><span style='color:#f0f'>GET</span></b>  " + source);
@@ -55,12 +55,11 @@ var pkg93 = {
         json.packages.forEach(function(item) {
           try {
             $log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
-            pkgs.push(item + "@" + source);
+            config.pkglist.push(item + "@" + source);
           } catch (err) {
             $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
           }
         });
-        config.pkglist = config.pkglist.concat(pkgs);
       } catch (err) {
         $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
         $log(request.responseText);
@@ -69,6 +68,7 @@ var pkg93 = {
     localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
   get: function(pkg) {
+    var config = pkg93.getConfig();
     var request = new XMLHttpRequest();
     $log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg);
     var index = config.pkglist.findIndex(function(string) {
@@ -91,7 +91,7 @@ var pkg93 = {
             try {
               $log("<b><span style='color:#f0f'>DPND</span></b> Getting dependency \"" + pkg + "\"");
               output = pkg93.get(pkg);
-              if (output) {throw new Error("Dependency \"" + pkg + "\" failed to install. Current package may not work!");}
+              if (!output) {throw new Error("Dependency \"" + pkg + "\" failed to install. Current package may not work!");}
             } catch (err) {
               $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
             }
@@ -119,6 +119,7 @@ var pkg93 = {
     }
   },
   rm: function(pkg) {
+    var config = pkg93.getConfig();
     var request = new XMLHttpRequest();
     var index = config.installed.indexOf(pkg);
     if (index < 0) {
@@ -141,7 +142,6 @@ var pkg93 = {
           delete le._apps[config.installed[index]];
           delete localStorage[".pkg93/packages/" + config.installed[index] + ".js"];
           delete localStorage[".pkg93/packages/" + config.installed[index] + ".json"];
-
           config.installed.splice(index, 1);
           $log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
         }
@@ -184,7 +184,7 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>`;
       localStorage[".pkg93/packages/"] = "";
     }
     localStorage[".pkg93/README.txt"] = "WARNING!\nThis folder contains important data about pkg93. Do not edit anything in here unless you want pkg93 to not work!\n\n~1024x2";
-    var config = JSON.parse(localStorage[".pkg93/config.json"]);
+    var config = pkg93.getConfig();
     if (args.length === 0) {
       $log(help);
     } else if (args[0] == "pull") {
