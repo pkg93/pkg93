@@ -47,15 +47,20 @@ example-repo
 Firstly, you want to make a new folder called the name of the package.
 Then, you want to make a file called package.json in the folder.
 In it, there should be 4 keys.
-- `name`: **Must be the same as the folder name and command name!**
+- `name`: **Must be the same as the folder name and command name!** (unless you've provided a uninstaller)
 - `inject`: It should be the name of the injection script.
 - `uninstall`: Optional, It should be the name of the uninstaller script, if it doesn't exist pkg93 will simply delete the command for you.
+- `dependencies`: Optional, Packages this package depends on. These will be automatically installed.
 Here's a example:
 ```json
 {
   "name": "examplepkg",
   "inject": "installer.js",
-  "uninstall": "optionaluninstaller.js"
+  "uninstall": "optionaluninstaller.js",
+  "dependencies": [
+    "anoptionaldependency",
+    "anotherone"
+  ]
 }
 ```
 And the directory structure:

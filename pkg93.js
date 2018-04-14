@@ -86,6 +86,17 @@ var pkg93 = {
         request.send(null);
         var json = JSON.parse(request.responseText);
         localStorage[".pkg93/packages/" + pkgname + ".json"] = request.responseText;
+        if (json.dependencies) {
+          json.dependencies.forEach(function (pkg) {
+            try {
+              $log("<b><span style='color:#f0f'>DPND</span></b> Getting dependency \"" + pkg + "\"");
+              output = pkg93.get(pkg);
+              if (output) {throw new Error("Dependency \"" + pkg + "\" failed to install. Current package may not work!");}
+            } catch (err) {
+              $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+            }
+          });
+        }
         request.open('GET', pkgsource + "/" + pkgname + "/" + json.inject, false);
         request.send(null);
         localStorage[".pkg93/packages/" + pkgname + ".js"] = request.responseText;
@@ -148,7 +159,7 @@ le._apps.pkg93 = {
   exec: function() {
     const protected = ["3d","acid","acidbox","ansi","anthology","arena93","bananamp","base64","bytebeat","calc","castlegafa","catex","cd","clear","clearhist","clippy","code","contact","crazy","defrag","dmg","do a barrel roll","doctor","download","find","font","format","fullscreen","fx","gameoflife","glitch","global thermonuclear war","gravity","hampster","hello","help","hexed","history","hl3","hydra","ie6","iframe","img","info","js","key","killall","layer","lenna","lisa","ls","manifesto","marburg","messenger","mines","necronomicoin","pd","piskel","pkg93","pony","potato","progressquest","pwd","reboot","robby","rotate","shutdown","skifree","solitude","speech","starwars","superplayer","takethis","terminal","textarea","tree","trollbox","vega","virtualpc","vm","wat","whatif","whois","win","zkype"];
     const args = this.arg.arguments;
-    const version = "v1.1.2";
+    const version = "v1.2.0";
     const help = `<b>pkg93 ${version}</b>
 <b>Usage:</b> pkg93 [command]
 
