@@ -19,6 +19,14 @@ console.log("[pkg93] Injecting packages...");
 try {
   if (localStorage[".pkg93/config.json"] === undefined) {
     console.log("[pkg93] You seem new. Creating config...");
+    $confirm('Are you using the PKG UserScript?', function (ok){
+  if (ok) {
+    $alert.info("Great!")
+  } else {
+    $alert.info("A shortcut was created for launching the installers.")
+    $db.set(`{"icon":"/c/sys/skins/w93/install.png","exe":"js https://rawgit.com/1024x2/pkg93/master/pkg93.js","title":"PKG93"}`)
+  }
+});
     localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
   }
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
