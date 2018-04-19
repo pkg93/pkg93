@@ -24,7 +24,7 @@ try {
     $alert.info("Great!")
   } else {
     $alert.info("A shortcut was created for launching the installers.")
-    $db.set(`{"icon":"/c/sys/skins/w93/install.png","exe":"js https://rawgit.com/1024x2/pkg93/master/pkg93.js","title":"PKG93"}`,"/a/desktop/PKG93.lnk42")
+  //  $store.set("/desktop/PKG93.lnk42",'{"icon":"/c/sys/skins/w93/install.png","exe":"js https://rawgit.com/1024x2/pkg93/master/pkg93.js","title":"PKG93"}')
   }
 });
     localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
