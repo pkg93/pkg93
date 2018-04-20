@@ -1,19 +1,3 @@
-/***************************
- * This code was created   *
- * by 1024x2, and is       *
- * licensed under the MIT  *
- * License, which means    *
- * you can do whatever you *
- * want on it as long as   *
- * you keep this copyright *
- * notice included with    *
- * this software. Please   *
- * respect that by not     *
- * deleting 'LICENSE' or   *
- * this notice. Thank you! *
- *               ~1024x2   *
- ***************************/
-
 console.group("[pkg93]");
 console.log("[pkg93] Injecting packages...");
 try {
@@ -40,8 +24,8 @@ var pkg93 = {
     }
   },
   pull: function() {
-    var config = pkg93.getConfig();
-    var request = new XMLHttpRequest();
+    var config = pkg93.getConfig(),
+        request = new XMLHttpRequest();
     $log("<b><span style='color:#ff0'>WARN</span></b> Windows93 may lag while getting packages.\n      This is a normal thing.");
     config.pkglist = [];
     config.repos.forEach(function (source) {
@@ -68,8 +52,8 @@ var pkg93 = {
     localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
   get: function(pkg) {
-    var config = pkg93.getConfig();
-    var request = new XMLHttpRequest();
+    var config = pkg93.getConfig(),
+        request = new XMLHttpRequest();
     $log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg);
     var index = config.pkglist.findIndex(function(string) {
       return string.split("@")[0] == pkg;
@@ -119,9 +103,9 @@ var pkg93 = {
     }
   },
   rm: function(pkg) {
-    var config = pkg93.getConfig();
-    var request = new XMLHttpRequest();
-    var index = config.installed.indexOf(pkg);
+    var config = pkg93.getConfig(),
+        request = new XMLHttpRequest(),
+        index = config.installed.indexOf(pkg);
     if (index < 0) {
       $log("<b><span style='color:#f00'>ERR</span></b>  Not found.");
       return false;
@@ -152,6 +136,33 @@ var pkg93 = {
         return false;
       }
     }
+  },
+  pkgInfo: function (pkg, onlineOnly) {
+    var config = pkg93.getConfig(),
+        request = new XMLHttpRequest();
+    try {
+      if (localStorage[".pkg93/packages/" + pkg + ".json"] && !onlineOnly) {
+        return JSON.parse(localStorage[".pkg93/packages/" + pkg + ".json"]);
+      } else {
+        var index = config.pkglist.findIndex(function(string) {
+          return string.split("@")[0] == pkg;
+        });
+        if (index < 0) {
+          return false;
+        } else {
+          var pkgname = config.pkglist[index].split("@")[0];
+          var pkgsource = config.pkglist[index].split("@")[1];
+          request.open('GET', pkgsource + "/" + pkgname + "/package.json", false);
+          request.send(null);
+          var json = JSON.parse(request.responseText);
+          localStorage[".pkg93/packages/" + pkgname + ".json"] = request.responseText; // save it for later
+          return json;
+        }
+      }
+    } catch (err) {
+      console.error("[pkg93] " + err.stack);
+      return false;
+    }
   }
 }
 
@@ -164,19 +175,21 @@ le._apps.pkg93 = {
 <b>Usage:</b> pkg93 [command]
 
 <b><u>List of Commands</u></b>
-<span style='color:#0f0'>pull</span>                      Updates package listing
-<span style='color:#0f0'>get</span> <span style='color:#77f'>[package]</span>             Installs a package
-<span style='color:#0f0'>rm</span> <span style='color:#77f'>[package]</span>              Uninstalls a package
-<span style='color:#0f0'>add-repo</span> <span style='color:#77f'>[url]</span>            Adds a repository
-<span style='color:#0f0'>rm-repo</span> <span style='color:#77f'>[id]</span>              Removes a repository
-<span style='color:#0f0'>ls</span> <span style='color:#77f'>[pkgs|installed|repos]</span> Lists all packages, installed
+<span style="color:#0f0">pull</span>                      Updates package listing
+<span style="color:#0f0">get</span> <span style="color:#77f">[package]</span>             Installs a package
+<span style="color:#0f0">rm</span> <span style="color:#77f">[package]</span>              Uninstalls a package
+<span style="color:#0f0">add-repo</span> <span style="color:#77f">[url]</span>            Adds a repository
+<span style="color:#0f0">rm-repo</span> <span style="color:#77f">[id]</span>              Removes a repository
+<span style="color:#0f0">info</span> <span style="color:#77f">[pkg]</span>                Gets information on a package
+<span style="color:#0f0">ls</span> <span style="color:#77f">[pkgs|installed|repos]</span> Lists packages, installed
                           packages or repositories.
 <b><u>Color meanings</u></b>
-<b><span style='color:#f0f'>Executing</span> <span style='color:#0f0'>OK</span> <span style='color:#f00'>Error</span> <span style='color:#ff0'>Warning</span></b>
+<b><span style="color:#f0f">Executing</span> <span style="color:#0f0">OK</span> <span style="color:#f00">Error</span> <span style="color:#ff0">Warning</span> <span style="color:#00f">Info</span></b>
 
 <b><u>Examples</u></b>
-pkg93 <span style='color:#0f0'>get</span> <span style='color:#77f'>gud</span>
-pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>`;
+pkg93 <span style="color:#0f0">get</span> <span style="color:#77f">gud</span>
+pkg93 <span style="color:#0f0">rm</span> <span style="color:#77f">kebab</span>
+`;
     if (localStorage[".pkg93/config.json"] === undefined) {
       localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
     }
@@ -206,20 +219,28 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>`;
         pkg93.rm(args[1]);
       }
     } else if (args[0] == "add-repo") {
-      try {
-        config.repos.push(args[1]); // well, that was easy
-        localStorage[".pkg93/config.json"] = JSON.stringify(config);
-        $log("<b><span style='color:#0f0'>OK</span></b>   Done!\n     Run \"pkg93 pull\" to update the package listing.");
-      } catch (err) {
-        $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+      if (args.length < 2) {
+        $log("<b><span style='color:#f00'>ERR</span></b>  No repository specified.");
+      } else {
+        try {
+          config.repos.push(args[1]); // well, that was easy
+          localStorage[".pkg93/config.json"] = JSON.stringify(config);
+          $log("<b><span style='color:#0f0'>OK</span></b>   Done!\n     Run \"pkg93 pull\" to update the package listing.");
+        } catch (err) {
+          $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+        }
       }
     } else if (args[0] == "rm-repo") {
-      try {
-        config.repos.splice(parseInt(args[1]), 1);
-        localStorage[".pkg93/config.json"] = JSON.stringify(config);
-        $log("<b><span style='color:#0f0'>OK</span></b>   Done!\n     Run \"pkg93 pull\" to update the package listing.");
-      } catch (err) {
-        $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+      if (args.length < 2) {
+        $log("<b><span style='color:#f00'>ERR</span></b>  No repository specified.");
+      } else {
+        try {
+          config.repos.splice(parseInt(args[1]), 1);
+          localStorage[".pkg93/config.json"] = JSON.stringify(config);
+          $log("<b><span style='color:#0f0'>OK</span></b>   Done!\n     Run \"pkg93 pull\" to update the package listing.");
+        } catch (err) {
+          $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+        }
       }
     } else if (args[0] == "ls") {
       if (args[1] == "pkgs") {
@@ -235,6 +256,21 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>`;
       } else {
         $log("<b><span style='color:#f00'>ERR</span></b>  You must select either pkgs, installed, or repos.");
       }
+    } else if (args[0] == "info") {
+      if (args.length > 2) {
+        $log("<b><span style='color:#f00'>ERR</span></b>  No package specified.");
+      } else {
+        var pkgInfo = JSON.parse(pkg93.pkgInfo(args[1]));
+        if (!pkgInfo) {
+          $log("<b><span style='color:#f00'>ERR</span></b>  Either the package doesn't exist, or an error occoured.")
+        } else {
+          depends = pkgInfo.dependencies ? pkgInfo.dependencies.join(" , ") : "<i><span style='color:#444'>None!</span></i>";
+          console.log(pkgInfo);
+          $log(`<b><u>${pkgInfo.name}</u></b>
+Description: ${pkgInfo.description}
+Dependencies: ${depends}`);
+        }
+      }
     } else if (args[0] == "help") {
       $log(help);
     } else if (args[0] == "wtf") {
@@ -249,5 +285,5 @@ pkg93 <span style='color:#0f0'>rm</span> <span style='color:#77f'>kebab</span>`;
   icon: "//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png",
   terminal: true,
   hascli: true,
-  categories: "Network;"
+  categories: "Network;Utility;Settings;PackageManager"
 };
