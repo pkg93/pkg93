@@ -6,7 +6,7 @@ try {
     localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
   }
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
-  config.installed.forEach(function (pkg) {
+  config.installed.forEach(function(pkg) {
     eval(localStorage[".pkg93/packages/" + pkg + ".js"]);
   });
 } catch (err) {
@@ -28,7 +28,7 @@ var pkg93 = {
     var request = new XMLHttpRequest();
     $log("<b><span style='color:#ff0'>WARN</span></b> Windows93 may lag while getting packages.\n      This is a normal thing.");
     config.pkglist = [];
-    config.repos.forEach(function (source) {
+    config.repos.forEach(function(source) {
       $log("<b><span style='color:#f0f'>GET</span></b>  " + source);
       request.open('GET', source + "/repo.json", false);
       try {
@@ -71,11 +71,13 @@ var pkg93 = {
         var json = JSON.parse(request.responseText);
         localStorage[".pkg93/packages/" + pkgname + ".json"] = request.responseText;
         if (json.dependencies) {
-          json.dependencies.forEach(function (pkg) {
+          json.dependencies.forEach(function(pkg) {
             try {
               $log("<b><span style='color:#f0f'>DPND</span></b> Getting dependency \"" + pkg + "\"");
               output = pkg93.get(pkg);
-              if (!output) {throw new Error("Dependency \"" + pkg + "\" failed to install. Current package may not work!");}
+              if (!output) {
+                throw new Error("Dependency \"" + pkg + "\" failed to install. Current package may not work!");
+              }
             } catch (err) {
               $log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
             }
@@ -103,8 +105,8 @@ var pkg93 = {
     }
   },
   rm: function(pkg) {
-    var config = pkg93.getConfig(),
-    var request = new XMLHttpRequest(),
+    var config = pkg93.getConfig();
+    var request = new XMLHttpRequest();
     var index = config.installed.indexOf(pkg);
     if (index < 0) {
       $log("<b><span style='color:#f00'>ERR</span></b>  Not found.");
@@ -137,7 +139,7 @@ var pkg93 = {
       }
     }
   },
-  pkgInfo: function (pkg, onlineOnly) {
+  pkgInfo: function(pkg, onlineOnly) {
     var config = pkg93.getConfig
     var request = new XMLHttpRequest();
     try {
@@ -176,7 +178,7 @@ if (localStorage[".pkg93/userscript"] && localStorage["desktop/Load pkg93.lnk42"
 le._apps.pkg93 = {
   exec: function() {
     pkg93.version = "v1.2.1";
-    var protected = ["3d","acid","acidbox","ansi","anthology","arena93","bananamp","base64","bytebeat","calc","castlegafa","catex","cd","clear","clearhist","clippy","code","contact","crazy","defrag","dmg","do a barrel roll","doctor","download","find","font","format","fullscreen","fx","gameoflife","glitch","global thermonuclear war","gravity","hampster","hello","help","hexed","history","hl3","hydra","ie6","iframe","img","info","js","key","killall","layer","lenna","lisa","ls","manifesto","marburg","messenger","mines","necronomicoin","pd","piskel","pkg93","pony","potato","progressquest","pwd","reboot","robby","rotate","shutdown","skifree","solitude","speech","starwars","superplayer","takethis","terminal","textarea","tree","trollbox","vega","virtualpc","vm","wat","whatif","whois","win","zkype"];
+    var protected = ["3d", "acid", "acidbox", "ansi", "anthology", "arena93", "bananamp", "base64", "bytebeat", "calc", "castlegafa", "catex", "cd", "clear", "clearhist", "clippy", "code", "contact", "crazy", "defrag", "dmg", "do a barrel roll", "doctor", "download", "find", "font", "format", "fullscreen", "fx", "gameoflife", "glitch", "global thermonuclear war", "gravity", "hampster", "hello", "help", "hexed", "history", "hl3", "hydra", "ie6", "iframe", "img", "info", "js", "key", "killall", "layer", "lenna", "lisa", "ls", "manifesto", "marburg", "messenger", "mines", "necronomicoin", "pd", "piskel", "pkg93", "pony", "potato", "progressquest", "pwd", "reboot", "robby", "rotate", "shutdown", "skifree", "solitude", "speech", "starwars", "superplayer", "takethis", "terminal", "textarea", "tree", "trollbox", "vega", "virtualpc", "vm", "wat", "whatif", "whois", "win", "zkype"];
     var args = this.arg.arguments;
     var help = `<b>pkg93 ${pkg93.version}</b>
 <b>Usage:</b> pkg93 [command]
@@ -256,7 +258,7 @@ pkg93 <span style="color:#0f0">rm</span> <span style="color:#77f">kebab</span>
         $log(config.installed.join("\n"));
       } else if (args[1] == "repos") {
         lerepos = "";
-        config.repos.forEach(function (repo, index) {
+        config.repos.forEach(function(repo, index) {
           lerepos += "[" + index + "] " + repo + "<br>";
         });
         $log(lerepos);
