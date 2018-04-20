@@ -35,4 +35,8 @@ var hook = function()
     console.error(err);
   }
 };
-if (system42 && "function" === typeof system42.on) system42.on("splash:ready", hook);
+if (le)
+{
+  hook()
+}
+else if (system42 && "function" === typeof system42.on) system42.on("splash:ready", hook);
