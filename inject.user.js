@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         pkg93 injecter
 // @namespace    pkg93inject
-// @version      0.1
+// @version      0.1.1
 // @description  Injects pkg93!
 // @author       1024x2
 // @match        *://*.windows93.net/*
@@ -23,6 +23,8 @@ var interval = setInterval(function () {
       clearInterval(interval);
       loadJS("https://rawgit.com/1024x2/pkg93/master/pkg93.js", function () {});
       $notif("pkg93 loaded successfully!");
+      var $pkg93 = new Object();
+      $pkg93.installed = true
     }
   } catch (err) {
     console.error(err);
