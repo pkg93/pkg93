@@ -8,7 +8,8 @@
 // ==/UserScript==
 
 // Thanks, Draco!
-function loadJS (source, onready){
+function loadJS(source, onready)
+{
   var sc = document.createElement("script");
   sc.src = source;
   sc.type = "text/javascript";
@@ -17,14 +18,21 @@ function loadJS (source, onready){
   return sc;
 }
 
-var interval = setInterval(function () {
-  try {
-    if (!!le) {
-      clearInterval(interval);
-      loadJS("https://rawgit.com/1024x2/pkg93/master/pkg93.js", function () {});
-      $notif("pkg93 loaded successfully!");
+var hook = function()
+{
+  try
+  {
+    if (le)
+    {
+      loadJS("https://rawgit.com/1024x2/pkg93/master/pkg93.js", function()
+      {
+        $notif("pkg93 loaded successfully!");
+      });
     }
-  } catch (err) {
+  }
+  catch (err)
+  {
     console.error(err);
   }
-}, 5000);
+};
+if (system42 && "function" === typeof system42.on) system42.on("splash:ready", hook);
