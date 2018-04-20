@@ -20,6 +20,7 @@ function loadJS (source, onready){
 var interval = setInterval(function () {
   try {
     if (!!le) {
+      localStorage[".pkg93/userscript"] = "";
       clearInterval(interval);
       loadJS("https://rawgit.com/1024x2/pkg93/master/pkg93.js", function () {});
       $notif("pkg93 loaded successfully!");

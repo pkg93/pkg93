@@ -163,15 +163,22 @@ var pkg93 = {
       console.error("[pkg93] " + err.stack);
       return false;
     }
-  }
+  },
+  version: "v1.2.1"
+}
+
+if (localStorage[".pkg93/userscript"] && localStorage["desktop/Load pkg93.lnk42"] != '{"icon":"//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png","exe":"js https://cdn.rawgit.com/1024x2/pkg93/' + pkg93.version + '/pkg93.js","title":"pkg93"}') {
+  $notif("Since you're not using the pkg93 userscript, a shortcut for installing pkg93 has been placed on your desktop.");
+  localStorage["desktop/Load pkg93.lnk42"] = '{"icon":"//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png","exe":"js https://cdn.rawgit.com/1024x2/pkg93/' + pkg93.version + '/pkg93.js","title":"Load pkg93"}';
+  $explorer.refresh();
 }
 
 le._apps.pkg93 = {
   exec: function() {
+    pkg93.version = "v1.2.1";
     const protected = ["3d","acid","acidbox","ansi","anthology","arena93","bananamp","base64","bytebeat","calc","castlegafa","catex","cd","clear","clearhist","clippy","code","contact","crazy","defrag","dmg","do a barrel roll","doctor","download","find","font","format","fullscreen","fx","gameoflife","glitch","global thermonuclear war","gravity","hampster","hello","help","hexed","history","hl3","hydra","ie6","iframe","img","info","js","key","killall","layer","lenna","lisa","ls","manifesto","marburg","messenger","mines","necronomicoin","pd","piskel","pkg93","pony","potato","progressquest","pwd","reboot","robby","rotate","shutdown","skifree","solitude","speech","starwars","superplayer","takethis","terminal","textarea","tree","trollbox","vega","virtualpc","vm","wat","whatif","whois","win","zkype"],
           args = this.arg.arguments,
-          version = "v1.2.0";
-          help = `<b>pkg93 ${version}</b>
+          help = `<b>pkg93 ${pkg93.version}</b>
 <b>Usage:</b> pkg93 [command]
 
 <b><u>List of Commands</u></b>
