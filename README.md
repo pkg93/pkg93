@@ -95,9 +95,10 @@ if (config == false) {
 
 #### Configuration Format:
 The configuration is a object with the following keys:
-- `repos` All added repos.
-- `installed` All installed packages.
+- `repos` - All added repos.
+- `installed` - All installed packages.
 - `pkglist` - All available packages.
+All of these keys are arrays.
 
 ### `pkg93.pull()`
 Refreshes the list of packages available.
