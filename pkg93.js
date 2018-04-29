@@ -186,7 +186,7 @@ if (localStorage[".pkg93/userscript"] && localStorage["desktop/Load pkg93.lnk42"
 
 le._apps.pkg93 = {
     exec: function() {
-        pkg93.version = "v1.2.1";
+        pkg93.version = "v1.2.2";
         var protected = ["3d", "acid", "acidbox", "ansi", "anthology", "arena93", "bananamp", "base64", "bytebeat", "calc", "castlegafa", "catex", "cd", "clear", "clearhist", "clippy", "code", "contact", "crazy", "defrag", "dmg", "do a barrel roll", "doctor", "download", "find", "font", "format", "fullscreen", "fx", "gameoflife", "glitch", "global thermonuclear war", "gravity", "hampster", "hello", "help", "hexed", "history", "hl3", "hydra", "ie6", "iframe", "img", "info", "js", "key", "killall", "layer", "lenna", "lisa", "ls", "manifesto", "marburg", "messenger", "mines", "necronomicoin", "pd", "piskel", "pkg93", "pony", "potato", "progressquest", "pwd", "reboot", "robby", "rotate", "shutdown", "skifree", "solitude", "speech", "starwars", "superplayer", "takethis", "terminal", "textarea", "tree", "trollbox", "vega", "virtualpc", "vm", "wat", "whatif", "whois", "win", "zkype"];
         var args = this.arg.arguments;
         var help = `<b>pkg93 ${pkg93.version}</b>
@@ -208,6 +208,13 @@ le._apps.pkg93 = {
 pkg93 <span style="color:#0f0">get</span> <span style="color:#77f">gud</span>
 pkg93 <span style="color:#0f0">rm</span> <span style="color:#77f">kebab</span>
 `;
+        // UPDATER //
+        pkg93.pull()
+        for (i = 0; i < pkg93.getConfig().installed.length; i++) {
+            pkg93.get(pkg93.getConfig().installed[i])
+        }
+        $log("<strong>Updating packages...</strong>")
+        // UPDATER //
         if (localStorage[".pkg93/config.json"] === undefined) {
             localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
         }
