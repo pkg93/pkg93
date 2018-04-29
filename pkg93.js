@@ -1,8 +1,3 @@
-/*
-Not production ready
-This code is UNTESTED, and is for my information only. Do not use without expectations of problems.
-v1.2.2-beta
-*/
 console.group("[pkg93]");
 console.log("[pkg93] Injecting packages...");
 try {
@@ -208,22 +203,23 @@ le._apps.pkg93 = {
 pkg93 <span style="color:#0f0">get</span> <span style="color:#77f">gud</span>
 pkg93 <span style="color:#0f0">rm</span> <span style="color:#77f">kebab</span>
 `;
-        // UPDATER //
-        pkg93.pull()
-        for (i = 0; i < pkg93.getConfig().installed.length; i++) {
-            pkg93.get(pkg93.getConfig().installed[i])
-        }
-        $log("<strong>Updating packages...</strong>")
-        // UPDATER //
         if (localStorage[".pkg93/config.json"] === undefined) {
             localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
         }
         if (localStorage[".pkg93/packages/"] === undefined) {
             localStorage[".pkg93/packages/"] = "";
         }
+
         localStorage[".pkg93/README.txt"] = "WARNING!\nThis folder contains important data about pkg93. Do not edit anything in here unless you want pkg93 to not work!\n\n~1024x2";
         var config = pkg93.getConfig();
         if (args.length === 0) {
+                    // UPDATER //
+        pkg93.pull()
+        for (i = 0; i < pkg93.getConfig().installed.length; i++) {
+            pkg93.get(pkg93.getConfig().installed[i])
+        }
+        $log("-----<br><strong>Updating packages...</strong>")
+        // UPDATER //
             $log(help);
         } else if (args[0] == "pull") {
             pkg93.pull();
