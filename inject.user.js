@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         pkg93 injecter
 // @namespace    pkg93inject
-// @version      0.1
+// @version      0.2
 // @description  Injects pkg93!
 // @author       1024x2
-// @match        *://*.windows93.net/*
+// @match        *://www.windows93.net/*
+// @match        *://windows93.net/*
+// @match        *://v2.windows93.net/*
 // ==/UserScript==
 
 // Thanks, Draco!
@@ -22,7 +24,7 @@ var interval = setInterval(function () {
     if (!!le) {
       localStorage[".pkg93/userscript"] = "";
       clearInterval(interval);
-      loadJS("https://rawgit.com/1024x2/pkg93/master/pkg93.js", function () {});
+      loadJS("https://rawgit.com/pkg93/pkg93/master/pkg93.js", function () {});
       $notif("pkg93 loaded successfully!");
     }
   } catch (err) {
