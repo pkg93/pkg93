@@ -1,6 +1,8 @@
 # pkg93
 A package manager for Windows 93!
 
+**NOTE:** If you're going to make a pull-request, please, for the love of god, try to keep the same coding style as the rest of the code.
+
 ## Table of Contents
 - [Installation](#installation)
 - [Adding my package to the main repoistory](#adding-my-package-to-the-main-repoistory)
