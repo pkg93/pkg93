@@ -13,7 +13,6 @@ var interval = setInterval(function () {
       localStorage[".pkg93/userscript"] = "";
       clearInterval(interval);
       loadJS("https://rawgit.com/pkg93/pkg93/master/pkg93.js", function () {});
-      $notif("pkg93 loaded successfully!");
     }
   } catch (err) {
     console.error(err);
