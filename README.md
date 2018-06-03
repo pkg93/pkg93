@@ -11,7 +11,8 @@ A package manager for Windows 93!
 - [API](#api)
 
 ## Installation
-Install the userscript in this repository named "inject.user.js".
+Run `js https://rawgit.com/pkg93/pkg93/master/install.js` in the terminal.
+It may take some time before `pkg93` is usable as a command.
 
 ## Adding my package to the main repoistory
 Go [here](https://github.com/1024x2/pkg93-mainrepo) for more info.
