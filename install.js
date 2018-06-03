@@ -19,5 +19,5 @@ var interval = setInterval(function () {
     console.error(err);
   }
 }, 5000);`
-localStorage["boot/pkg93.js"]=_main;
+localStorage["boot/pkg93.js"] = _main;
 eval(_main);
