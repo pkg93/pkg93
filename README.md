@@ -95,6 +95,8 @@ if (config == false) {
 }
 ```
 
+**NOTE:** `pkg93.shutUp` don't work with getConfig, as getConfig doesn't output anything. [Redirecting output](https://github.com/pkg93/pkg93#protip) doesn't work either.
+
 #### Configuration Format:
 The configuration is a object with the following keys:
 - `repos` - All added repos.
@@ -106,15 +108,15 @@ All of these keys are arrays.
 Refreshes the list of packages available.
 Example:
 ```js
-alert("You previously had " + config.pkglist.length + " packages available.");
-pkg93.pull();
-alert("Now you have " + config.pkglist.length + " packages available!");
+alert("You previously had " + pkg93.getConfig().pkglist.length + " packages available.");
+await pkg93.pull();
+alert("Now you have " + pkg93.getConfig().pkglist.length + " packages available!");
 ```
 
 ### `pkg93.get(package)`
 Tries to install `package`, then returns `true` if the package was installed or `false` if the package couldn't be installed.
 ```js
-succeded = pkg93.get("wget93");
+succeded = await pkg93.get("wget93");
 if (succeded) {
   alert("Installed wget93!");  
 } else {
@@ -125,7 +127,7 @@ if (succeded) {
 ### `pkg93.rm(package)`
 Tries to remove `package`, then returns `true` if the package was removed or `false` if the package couldn't be removed.
 ```js
-succeded = pkg93.rm("wget93");
+succeded = await pkg93.rm("wget93");
 if (succeded) {
   alert("Removed wget93!");
 } else {
@@ -136,10 +138,23 @@ if (succeded) {
 ### `pkg93.pkginfo(package)`
 Returns the package.json of `package` or `false` if it failed.
 ```js
-package = pkg93.pkgInfo("wget93");
+package = await pkg93.pkgInfo("wget93");
 if (package == false) {
   alert("Something went wrong...");
 } else {
   alert("wget93's description is: " + package.description);
+}
+```
+
+### `pkg93.shutUp`
+If you pass `pkg93.shutUp` as an extra argument (so `pkg93.get("wget93")` becomes `pkg93.get("wget93", pkg93.shutUp)`), it will silence all output.
+
+### PROTIP!
+You can specify where output goes by adding an extra argument with the format below:
+```js
+{
+  log: function(input) {
+    // output the input variable
+  }
 }
 ```
