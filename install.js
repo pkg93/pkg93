@@ -1,18 +1,9 @@
-var _main = `function loadJS (source, onready){
-  var sc = document.createElement("script");
-  sc.src = source;
-  sc.type = "text/javascript";
-  if (onready) sc.addEventListener("load", onready);
-  document.head.appendChild(sc);
-  return sc;
-}
-
-var interval = setInterval(function () {
+var _main = `var interval = setInterval(function () {
   try {
     if (!!le) {
       localStorage[".pkg93/userscript"] = "";
       clearInterval(interval);
-      loadJS("https://rawgit.com/pkg93/pkg93/master/pkg93.js", function () {});
+      $loader.script("https://rawgit.com/pkg93/pkg93/master/pkg93.js");
     }
   } catch (err) {
     console.error(err);
