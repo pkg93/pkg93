@@ -165,9 +165,6 @@ var pkg93 = {
         cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
         return false;
       }
-    } catch (err) {
-      $log("<b><span style='color:#f00'>ERR</span></b>  " + err.toString());
-      return err;
     }
   },
   pkgInfo: async function(pkg, onlineOnly) {
@@ -307,17 +304,6 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
 Description: ${description}
 Dependencies: ${depends}`);
       }
-    } else if (args[0] == "help") {
-      $log(help);
-    } else if (args[0] == "wtf") {
-      // for teh lulz
-      new Audio("/c/sys/sounds/QUACK.ogg").play();
-      wtf = ["mudkipz", "pkg93", "memes", "linux", "javascript", "git", "cpu",
-        "windows93", "discord", "kirb", "apt93", "delays", "trash",
-        "kernel panic", "bash", "package manager", "recusion"];
-      $log("<b><span style='color:#0f0'>WTF?</span></b> " + wtf[Math.floor(Math.random() * wtf.length)] + " + " + wtf[Math.floor(Math.random() * wtf.length)] + " = " + wtf[Math.floor(Math.random() * wtf.length)]);
-    } else {
-      $log("<b><span style='color:#f00'>ERR</span></b>  Invalid command. Type \"pkg93\" without any arguments for help.");
     }
   } else if (args[0] == "help") {
     cli.log(help);
