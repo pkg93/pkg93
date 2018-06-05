@@ -24,7 +24,7 @@ console.log("[pkg93] Injecting packages...");
 try {
   if (localStorage[".pkg93/config.json"] === undefined) {
     console.log("[pkg93] You seem new. Creating config...");
-    localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
+    localStorage[".pkg93/config.json"] = '{"repos": ["//codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
   }
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
   for (let pkg of config.installed) {
@@ -45,6 +45,7 @@ var pkg93 = {
     }
   },
   pull: async function(cli) {
+    cli = cli || {log: (i) => {$log(i)}};
     var config = pkg93.getConfig();
     cli.log("<b><span style='color:#ff0'>WARN</span></b> Windows93 may lag while getting packages.\n      This is a normal thing.");
     config.pkglist = [];
@@ -69,6 +70,7 @@ var pkg93 = {
     localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
   get: async function(pkg, cli) {
+    cli = cli || {log: (i) => {$log(i)}};
     var config = pkg93.getConfig();
     cli.log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg);
     var index = config.pkglist.findIndex(function(string) {
@@ -117,6 +119,7 @@ var pkg93 = {
     }
   },
   rm: function(pkg, cli) {
+    cli = cli || {log: (i) => {$log(i)}};
     var config = pkg93.getConfig();
     var index = config.installed.indexOf(pkg);
     if (index < 0) {
@@ -174,18 +177,16 @@ var pkg93 = {
       return false;
     }
   },
+  shutUp: {
+    log: ()=>{},
+    arg: {arguments:[]}
+  },
   version: "v1.2.1"
 }
 
-if (localStorage[".pkg93/userscript"] && localStorage["desktop/Load pkg93.lnk42"] != '{"icon":"//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png","exe":"js https://cdn.rawgit.com/1024x2/pkg93/' + pkg93.version + '/pkg93.js","title":"pkg93"}') {
-  $notif("Since you're not using the pkg93 userscript, a shortcut for installing pkg93 has been placed on your desktop.");
-  localStorage["desktop/Load pkg93.lnk42"] = '{"icon":"//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png","exe":"js https://cdn.rawgit.com/1024x2/pkg93/' + pkg93.version + '/pkg93.js","title":"Load pkg93"}';
-  $explorer.refresh();
-}
-
-async function exec(cli) {
+async function _pkg93execdonotcallplsusetheapi(cli) {
   pkg93.version = "v1.2.1";
-  var protected = ["3d", "acid", "acidbox", "ansi", "anthology", "arena93", "bananamp", "base64", "bytebeat", "calc", "castlegafa", "catex", "cd", "clear", "clearhist", "clippy", "code", "contact", "crazy", "defrag", "dmg", "do a barrel roll", "doctor", "download", "find", "font", "format", "fullscreen", "fx", "gameoflife", "glitch", "global thermonuclear war", "gravity", "hampster", "hello", "help", "hexed", "history", "hl3", "hydra", "ie6", "iframe", "img", "info", "js", "key", "killall", "layer", "lenna", "lisa", "ls", "manifesto", "marburg", "messenger", "mines", "necronomicoin", "pd", "piskel", "pkg93", "pony", "potato", "progressquest", "pwd", "reboot", "robby", "rotate", "shutdown", "skifree", "solitude", "speech", "starwars", "superplayer", "takethis", "terminal", "textarea", "tree", "trollbox", "vega", "virtualpc", "vm", "wat", "whatif", "whois", "win", "zkype"];
+  var protected = ["3d", "acid", "acidbox", "ansi", "anthology", "arena93", "bananamp", "base64", "bytebeat", "calc", "castlegafa", "catex", "cd", "clear", "clearhist", "clippy", "code", "contact", "crazy", "defrag", "dmg", "do a barrel roll", "doctor", "download", "find", "font", "format", "fullscreen", "fx", "gameoflife", "glitch", "global thermonuclear war", "gravity", "hampster", "hello", "help", "hexed", "history", "hl3", "hydra", "ie6", "iframe", "img", "info", "js", "key", "killall", "layer", "lenna", "lisa", "ls", "manifesto", "marburg", "messenger", "mines", "necronomicoin", "pd", "piskel", "pkg93", "pony", "potato", "progressquest", "pwd", "reboot", "robby", "rotate", "shutdown", "skifree", "solitude", "speech", "starwars", "superplayer", "takethis", "terminal", "textarea", "tree", "trollbox", "vega", "virtualpc", "vm", "wat", "whatif", "whois", "win", "zkype", "peng"];
   var args = cli.arg.arguments;
   var help = `<b>pkg93 ${pkg93.version}</b>
 <b>Usage:</b> pkg93 [command]
@@ -301,7 +302,7 @@ Dependencies: ${depends}`);
 }
 
 le._apps.pkg93 = {
-  exec: function() { wrap.call(this, exec) },
+  exec: function() { wrap.call(this, _pkg93execdonotcallplsusetheapi) },
   icon: "//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png",
   terminal: true,
   hascli: true,
