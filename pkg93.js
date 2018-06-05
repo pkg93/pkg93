@@ -151,7 +151,7 @@ var pkg93 = {
     }
   },
   pkgInfo: async function(pkg, onlineOnly) {
-    var config = pkg93.getConfig
+    var config = pkg93.getConfig();
     try {
       if (localStorage[".pkg93/packages/" + pkg + ".json"] && !onlineOnly) {
         return JSON.parse(localStorage[".pkg93/packages/" + pkg + ".json"]);
