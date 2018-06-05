@@ -276,14 +276,15 @@ pkg93 <span style="color:#0f0">rm</span> <span style="color:#77f">kebab</span>
     if (args.length > 2) {
       cli.log("<b><span style='color:#f00'>ERR</span></b>  No package specified.");
     } else {
-      var pkgInfo = JSON.parse(await pkg93.pkgInfo(args[1]));
+      var pkgInfo = await pkg93.pkgInfo(args[1]);
       if (!pkgInfo) {
         cli.log("<b><span style='color:#f00'>ERR</span></b>  Either the package doesn't exist, or an error occoured.")
       } else {
         depends = pkgInfo.dependencies ? pkgInfo.dependencies.join(" , ") : "<i><span style='color:#444'>None!</span></i>";
+        description = pkgInfo.description ? pkgInfo.description : "<i><span style='color:#444'>None!</span></i>";
         console.log(pkgInfo);
         cli.log(`<b><u>${pkgInfo.name}</u></b>
-Description: ${pkgInfo.description}
+Description: ${description}
 Dependencies: ${depends}`);
       }
     }
