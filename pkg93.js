@@ -41,7 +41,7 @@ var pkg93 = {
     try {
       return JSON.parse(localStorage[".pkg93/config.json"]);
     } catch (err) {
-      return false;
+      return err;
     }
   },
   pull: async function(cli) {
@@ -65,6 +65,20 @@ var pkg93 = {
         }
       } catch (err) {
         cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+        if (request.status !== 200) {
+          cli.log("<b><span style='color:#f00'>ERR</span></b>  Got HTTP Status Code " + request.status + " from the server.");
+          if (request.status === 404) {
+            cli.log("<b>    </b> Are you trying to load a non-existant repo?");
+          }
+        }
+        if (!request.responseText.toLowerCase().includes("<html>")) {
+          cli.log("<b><span style='color:#00f'>INFO</span></b> Response is HTML, not displaying...");
+        } else {
+          cli.log(request.responseText);
+        }
+        if (location.protocol == "https:") {
+          cli.log("<b><span style='color:#ff0'>WARN</span></b> pkg93 doesn't work on HTTPS connections.\n     Click <a style='color: #00f;' href='http://windows93.net'>here</a> to load Windows93 over HTTP.");
+        }
       }
     }
     localStorage[".pkg93/config.json"] = JSON.stringify(config);
@@ -151,6 +165,9 @@ var pkg93 = {
         cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
         return false;
       }
+    } catch (err) {
+      $log("<b><span style='color:#f00'>ERR</span></b>  " + err.toString());
+      return err;
     }
   },
   pkgInfo: async function(pkg, onlineOnly) {
@@ -174,7 +191,7 @@ var pkg93 = {
       }
     } catch (err) {
       console.error("[pkg93] " + err.stack);
-      return false;
+      return err;
     }
   },
   shutUp: {
@@ -206,9 +223,11 @@ async function _pkg93execdonotcallplsusetheapi(cli) {
 <b><u>Examples</u></b>
 pkg93 <span style="color:#0f0">get</span> <span style="color:#77f">gud</span>
 pkg93 <span style="color:#0f0">rm</span> <span style="color:#77f">kebab</span>
+
+If you find my software useful, consider donating <a style="color: #00f;" href="http://codinggamerhd.com/donate.html">here</a>.
 `;
   if (localStorage[".pkg93/config.json"] === undefined) {
-    localStorage[".pkg93/config.json"] = '{"repos": ["http://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
+    localStorage[".pkg93/config.json"] = '{"repos": ["//codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
   }
   if (localStorage[".pkg93/packages/"] === undefined) {
     localStorage[".pkg93/packages/"] = "";
@@ -288,6 +307,17 @@ pkg93 <span style="color:#0f0">rm</span> <span style="color:#77f">kebab</span>
 Description: ${description}
 Dependencies: ${depends}`);
       }
+    } else if (args[0] == "help") {
+      $log(help);
+    } else if (args[0] == "wtf") {
+      // for teh lulz
+      new Audio("/c/sys/sounds/QUACK.ogg").play();
+      wtf = ["mudkipz", "pkg93", "memes", "linux", "javascript", "git", "cpu",
+        "windows93", "discord", "kirb", "apt93", "delays", "trash",
+        "kernel panic", "bash", "package manager", "recusion"];
+      $log("<b><span style='color:#0f0'>WTF?</span></b> " + wtf[Math.floor(Math.random() * wtf.length)] + " + " + wtf[Math.floor(Math.random() * wtf.length)] + " = " + wtf[Math.floor(Math.random() * wtf.length)]);
+    } else {
+      $log("<b><span style='color:#f00'>ERR</span></b>  Invalid command. Type \"pkg93\" without any arguments for help.");
     }
   } else if (args[0] == "help") {
     cli.log(help);
