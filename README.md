@@ -1,4 +1,5 @@
-# pkg93
+# pkg93 [![Test](https://img.shields.io/travis/pkg93/pkg93.svg?label=test)](https://travis-ci.org/pkg93/pkg93)
+
 A package manager for Windows 93!
 
 **NOTE:** If you're going to make a pull-request, please, for the love of god, try to keep the same coding style as the rest of the code. I don't care if your beautifer does it for you, or you think it looks fancy, just try to make the style consistent.
