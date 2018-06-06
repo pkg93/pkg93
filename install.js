@@ -8,6 +8,6 @@ var _main = `var interval = setInterval(function () {
   } catch (err) {
     console.error(err);
   }
-}, 5000);`
+}, 5000);`;
 localStorage["boot/pkg93.js"] = _main;
-eval(_main);
+eval(_main); // jshint ignore:line

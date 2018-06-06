@@ -1,21 +1,21 @@
 async function wrap(f) {
-  var originalPrompt = this.cli.prompt.innerHTML
-  var originalOnenter = this.cli.onenter
+  var originalPrompt = this.cli.prompt.innerHTML;
+  var originalOnenter = this.cli.onenter;
   try  {
-    this.cli.prompt.innerHTML = ''
-    this.cli.onenter = l => false
-    var lastLog = $log('')
+    this.cli.prompt.innerHTML = "";
+    this.cli.onenter = () => false;
+    var lastLog = $log("");
     await f({
-        log: (...args) => {
-            var newLog = $log(...args)
-            newLog.parentElement.insertBefore(newLog, lastLog.nextSibling)
-            lastLog = newLog
-        },
-        arg: this.arg
-      })
+      log: (...args) => {
+        var newLog = $log(...args);
+        newLog.parentElement.insertBefore(newLog, lastLog.nextSibling);
+        lastLog = newLog;
+      },
+      arg: this.arg
+    });
   } finally {
-    this.cli.prompt.innerHTML = originalPrompt
-    this.cli.onenter = originalOnenter
+    this.cli.prompt.innerHTML = originalPrompt;
+    this.cli.onenter = originalOnenter;
   }
 }
 
@@ -24,11 +24,11 @@ console.log("[pkg93] Injecting packages...");
 try {
   if (localStorage[".pkg93/config.json"] === undefined) {
     console.log("[pkg93] You seem new. Creating config...");
-    localStorage[".pkg93/config.json"] = '{"repos": ["//codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
+    localStorage[".pkg93/config.json"] = `{"repos": ["//codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}`;
   }
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
   for (let pkg of config.installed) {
-    eval(localStorage[".pkg93/packages/" + pkg + ".js"]);
+    eval(localStorage[".pkg93/packages/" + pkg + ".js"]); // jshint ignore:line
   }
 } catch (err) {
   console.error("[pkg93] Couldn't load package information.");
@@ -45,14 +45,14 @@ var pkg93 = {
     }
   },
   pull: async function(cli) {
-    cli = cli || {log: (i) => {$log(i)}};
+    cli = cli || {log: (i) => {$log(i);}};
     var config = pkg93.getConfig();
     cli.log("<b><span style='color:#ff0'>WARN</span></b> Windows93 may lag while getting packages.\n      This is a normal thing.");
     config.pkglist = [];
     for (let source of config.repos) {
       cli.log("<b><span style='color:#f0f'>GET</span></b>  " + source);
       try {
-        var json = await (await (fetch(source + "/repo.json"))).json()
+        var json = await (await (fetch(source + "/repo.json"))).json();
         cli.log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
         cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
         for (let item of json.packages) {
@@ -65,26 +65,12 @@ var pkg93 = {
         }
       } catch (err) {
         cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-        if (request.status !== 200) {
-          cli.log("<b><span style='color:#f00'>ERR</span></b>  Got HTTP Status Code " + request.status + " from the server.");
-          if (request.status === 404) {
-            cli.log("<b>    </b> Are you trying to load a non-existant repo?");
-          }
-        }
-        if (!request.responseText.toLowerCase().includes("<html>")) {
-          cli.log("<b><span style='color:#00f'>INFO</span></b> Response is HTML, not displaying...");
-        } else {
-          cli.log(request.responseText);
-        }
-        if (location.protocol == "https:") {
-          cli.log("<b><span style='color:#ff0'>WARN</span></b> pkg93 doesn't work on HTTPS connections.\n     Click <a style='color: #00f;' href='http://windows93.net'>here</a> to load Windows93 over HTTP.");
-        }
       }
     }
     localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
   get: async function(pkg, cli) {
-    cli = cli || {log: (i) => {$log(i)}};
+    cli = cli || {log: (i) => {$log(i);}};
     var config = pkg93.getConfig();
     cli.log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg);
     var index = config.pkglist.findIndex(function(string) {
@@ -98,13 +84,13 @@ var pkg93 = {
       var pkgname = config.pkglist[index].split("@")[0];
       var pkgsource = config.pkglist[index].split("@")[1];
       try {
-        var json = await (await (fetch(pkgsource + "/" + pkgname + "/package.json"))).json()
+        var json = await (await (fetch(pkgsource + "/" + pkgname + "/package.json"))).json();
         localStorage[".pkg93/packages/" + pkgname + ".json"] = JSON.stringify(json);
         if (json.dependencies) {
           for (let pkg of json.dependencies) {
             try {
               cli.log("<b><span style='color:#f0f'>DPND</span></b> Getting dependency \"" + pkg + "\"");
-              output = await pkg93.get(pkg, cli);
+              var output = await pkg93.get(pkg, cli);
               if (!output) {
                 throw new Error("Dependency \"" + pkg + "\" failed to install. Current package may not work!");
               }
@@ -113,11 +99,11 @@ var pkg93 = {
             }
           }
         }
-        var script = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.inject))).text()
+        var script = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.inject))).text();
         localStorage[".pkg93/packages/" + pkgname + ".js"] = script;
         eval(script);
         if (json.uninstall) {
-          var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.uninstall))).text()
+          var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.uninstall))).text();
           localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = uninst;
         }
         cli.log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
@@ -133,18 +119,18 @@ var pkg93 = {
     }
   },
   rm: function(pkg, cli) {
-    cli = cli || {log: (i) => {$log(i)}};
+    cli = cli || {log: (i) => {$log(i);}};
     var config = pkg93.getConfig();
     var index = config.installed.indexOf(pkg);
     if (index < 0) {
       cli.log("<b><span style='color:#f00'>ERR</span></b>  Not found.");
       return false;
-    } else if (!!localStorage[".pkg93/packages/" + pkg + ".rm.js"]) {
+    } else if (localStorage[".pkg93/packages/" + pkg + ".rm.js"]) {
       eval(localStorage[".pkg93/packages/" + pkg + ".rm.js"]); // Typing eval makes me feel dirty.
       delete le._apps[config.installed[index]];
-      delete localStorage[".pkg93/packages/" + pkg + ".rm.js"]
-      delete localStorage[".pkg93/packages/" + pkg + ".js"]
-      delete localStorage[".pkg93/packages/" + pkg + ".json"]
+      delete localStorage[".pkg93/packages/" + pkg + ".rm.js"];
+      delete localStorage[".pkg93/packages/" + pkg + ".js"];
+      delete localStorage[".pkg93/packages/" + pkg + ".json"];
       config.installed.splice(index, 1);
       cli.log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
     } else {
@@ -181,7 +167,7 @@ var pkg93 = {
         } else {
           var pkgname = config.pkglist[index].split("@")[0];
           var pkgsource = config.pkglist[index].split("@")[1];
-          var json = await (await (fetch(pkgsource + "/" + pkgname + "/package.json"))).json()
+          var json = await (await (fetch(pkgsource + "/" + pkgname + "/package.json"))).json();
           localStorage[".pkg93/packages/" + pkgname + ".json"] = JSON.stringify(json); // save it for later
           return json;
         }
@@ -196,7 +182,7 @@ var pkg93 = {
     arg: {arguments:[]}
   },
   version: "v2.0.0"
-}
+};
 
 async function _pkg93execdonotcallplsusetheapi(cli) {
   pkg93.version = "v2.0.0";
@@ -224,7 +210,7 @@ pkg93 <span style="color:#0f0">rm</span> <span style="color:#77f">kebab</span>
 If you find my software useful, consider donating <a style="color: #00f;" href="http://codinggamerhd.com/donate.html">here</a>.
 `;
   if (localStorage[".pkg93/config.json"] === undefined) {
-    localStorage[".pkg93/config.json"] = '{"repos": ["//codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}';
+    localStorage[".pkg93/config.json"] = "{\"repos\": [\"//codinggamerhd.com/main-repo\"], \"installed\": [], \"pkglist\": []}";
   }
   if (localStorage[".pkg93/packages/"] === undefined) {
     localStorage[".pkg93/packages/"] = "";
@@ -281,7 +267,7 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
     } else if (args[1] == "installed") {
       cli.log(config.installed.join("\n"));
     } else if (args[1] == "repos") {
-      lerepos = "";
+      var lerepos = "";
       for (let index in config.repos) {
         lerepos += "[" + index + "] " + config.repos[index] + "<br>";
       }
@@ -295,10 +281,10 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
     } else {
       var pkgInfo = await pkg93.pkgInfo(args[1]);
       if (!pkgInfo) {
-        cli.log("<b><span style='color:#f00'>ERR</span></b>  Either the package doesn't exist, or an error occoured.")
+        cli.log("<b><span style='color:#f00'>ERR</span></b>  Either the package doesn't exist, or an error occoured.");
       } else {
-        depends = pkgInfo.dependencies ? pkgInfo.dependencies.join(" , ") : "<i><span style='color:#444'>None!</span></i>";
-        description = pkgInfo.description ? pkgInfo.description : "<i><span style='color:#444'>None!</span></i>";
+        var depends = pkgInfo.dependencies ? pkgInfo.dependencies.join(" , ") : "<i><span style='color:#444'>None!</span></i>";
+        var description = pkgInfo.description ? pkgInfo.description : "<i><span style='color:#444'>None!</span></i>";
         console.log(pkgInfo);
         cli.log(`<b><u>${pkgInfo.name}</u></b>
 Description: ${description}
@@ -310,7 +296,7 @@ Dependencies: ${depends}`);
   } else if (args[0] == "wtf") {
     // for teh lulz
     new Audio("/c/sys/sounds/QUACK.ogg").play();
-    wtf = ["mudkipz", "pkg93", "memes", "linux", "javascript", "git", "cpu", "windows93", "discord", "kirb", "apt93", "delays", /* those last 2 go well together */ "trash", "kernel panic", "bash", "package manager", "recusion"];
+    var wtf = ["mudkipz", "pkg93", "memes", "linux", "javascript", "git", "cpu", "windows93", "discord", "kirb", "apt93", "delays", /* those last 2 go well together */ "trash", "kernel panic", "bash", "package manager", "recusion"];
     cli.log("<b><span style='color:#0f0'>WTF?</span></b> " + wtf[Math.floor(Math.random() * wtf.length)] + " + " + wtf[Math.floor(Math.random() * wtf.length)] + " = " + wtf[Math.floor(Math.random() * wtf.length)]);
   } else {
     cli.log("<b><span style='color:#f00'>ERR</span></b>  Invalid command. Type \"pkg93\" without any arguments for help.");
@@ -318,7 +304,7 @@ Dependencies: ${depends}`);
 }
 
 le._apps.pkg93 = {
-  exec: function() { wrap.call(this, _pkg93execdonotcallplsusetheapi) },
+  exec: function() { wrap.call(this, _pkg93execdonotcallplsusetheapi); },
   icon: "//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png",
   terminal: true,
   hascli: true,
