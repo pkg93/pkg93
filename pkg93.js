@@ -10,6 +10,7 @@ async function wrap(f) {
         var newLog = $log(...args);
         newLog.parentElement.insertBefore(newLog, lastLog.nextSibling);
         lastLog = newLog;
+        return newLog;
       },
       arg: this.arg
     });
@@ -28,13 +29,25 @@ try {
   }
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
   for (let pkg of config.installed) {
-    eval(localStorage[".pkg93/packages/" + pkg + ".js"]); // jshint ignore:line
+    eval(localStorage[".pkg93/packages/" + pkg + ".js"]);
   }
 } catch (err) {
   console.error("[pkg93] Couldn't load package information.");
 }
 console.log("[pkg93] Done!");
 console.groupEnd();
+
+// thanks robbie! sauce: https://gist.github.com/robbie0630/e1386fb10676598e7d60d4f406a41042
+var _abarpkg93uses = (width, percent) => {
+  if (percent > 1) percent = 1;
+  let barwidth = width - 7;
+  let pbar = "[";
+  for (let i = 0; i < Math.floor(percent*barwidth); ++i) pbar += "=";
+  for (let i = 0; i < Math.ceil((1-percent)*barwidth); ++i) pbar += "-";
+  pbar += "] " + Math.floor(percent * 100) + "%";
+  return pbar;
+};
+
 
 var pkg93 = {
   getConfig: function() {
@@ -47,12 +60,20 @@ var pkg93 = {
   pull: async function(cli) {
     cli = cli || {log: (i) => {$log(i);}};
     var config = pkg93.getConfig();
-    cli.log("<b><span style='color:#ff0'>WARN</span></b> Windows93 may lag while getting packages.\n      This is a normal thing.");
     config.pkglist = [];
     for (let source of config.repos) {
-      cli.log("<b><span style='color:#f0f'>GET</span></b>  " + source);
-      try {
-        var json = await (await (fetch(source + "/repo.json"))).json();
+      cli.log("<b><span style='color:#f0f'>GET</span></b>  " + source + "/repo.json");
+      var bardiv = cli.log(_abarpkg93uses(60, 0));
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", source + "/repo.json", true);
+      xhr.onprogress = e => {
+        bardiv.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
+      };
+      xhr.onerror = () => {
+        cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
+      };
+      xhr.onload = () => {
+        var json = JSON.parse(xhr.responseText);
         cli.log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
         cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
         for (let item of json.packages) {
@@ -63,13 +84,12 @@ var pkg93 = {
             cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
           }
         }
-      } catch (err) {
-        cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-      }
+      };
+      xhr.send();
     }
     localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
-  get: async function(pkg, cli) {
+  get: async function(pkg, cli, callback) {
     cli = cli || {log: (i) => {$log(i);}};
     var config = pkg93.getConfig();
     cli.log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg);
@@ -83,38 +103,77 @@ var pkg93 = {
       cli.log("<b><span style='color:#0f0'>OK</span></b>   Found!");
       var pkgname = config.pkglist[index].split("@")[0];
       var pkgsource = config.pkglist[index].split("@")[1];
-      try {
-        var json = await (await (fetch(pkgsource + "/" + pkgname + "/package.json"))).json();
-        localStorage[".pkg93/packages/" + pkgname + ".json"] = JSON.stringify(json);
-        if (json.dependencies) {
-          for (let pkg of json.dependencies) {
+      cli.log("<b><span style='color:#f0f'>GET</span></b>  " + pkgsource + "/" + pkgname + "/package.json");
+      var bardiv = cli.log(_abarpkg93uses(60, 0));
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", pkgsource + "/" + pkgname + "/package.json", true);
+      xhr.setRequestHeader("X-Requested-With", "pkg93");
+      xhr.onprogress = e => {
+        try {
+          bardiv.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
+        } catch (err) {
+          // fail silently
+        }
+      };
+      xhr.onerror = () => {
+        cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
+        callback(false);
+      };
+      xhr.onload = () => {
+        try {
+          cli.log("<b><span style='color:#0f0'>DONE</span></b> " + pkgsource + "/" + pkgname + "/package.json");
+          var json = JSON.parse(xhr.responseText);
+          localStorage[".pkg93/packages/" + pkgname + ".json"] = JSON.stringify(json);
+          cli.log("<b><span style='color:#f0f'>GET</span></b>  " + pkgsource + "/" + pkgname + "/" + json.inject);
+          var bardiv2 = cli.log(_abarpkg93uses(60, 0));
+          var xhr2 = new XMLHttpRequest();
+          xhr2.open("GET", pkgsource + "/" + pkgname + "/" + json.inject);
+          xhr2.setRequestHeader("X-Requested-With", "pkg93");
+          xhr2.onprogress = e => {
             try {
-              cli.log("<b><span style='color:#f0f'>DPND</span></b> Getting dependency \"" + pkg + "\"");
-              var output = await pkg93.get(pkg, cli);
-              if (!output) {
-                throw new Error("Dependency \"" + pkg + "\" failed to install. Current package may not work!");
+              bardiv2.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
+            } catch (err) {
+              // fail silently
+            }
+          };
+          xhr2.onerror = () => {
+            cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving " + pkgsource + "/" + pkgname + "/" + json.inject);
+            callback(false);
+          };
+          xhr2.onload = async () => {
+            try {
+              cli.log("<b><span style='color:#0f0'>DONE</span></b> " + pkgsource + "/" + pkgname + "/" + json.inject);
+              var script = xhr2.responseText;
+              localStorage[".pkg93/packages/" + pkgname + ".js"] = script;
+              eval(script);
+              if (json.uninstall) {
+                // no xhr this time
+                var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.uninstall))).text();
+                localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = uninst;
               }
+              cli.log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
+              if (!config.installed.includes(pkgname)) {
+                config.installed.push(pkgname);
+              }
+              localStorage[".pkg93/config.json"] = JSON.stringify(config);
+              callback(true);
+              // can i go home now
             } catch (err) {
               cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+              callback(false, err);
             }
-          }
+          };
+          xhr2.send();
+        } catch (err) {
+          cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+          callback(false, err);
         }
-        var script = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.inject))).text();
-        localStorage[".pkg93/packages/" + pkgname + ".js"] = script;
-        eval(script);
-        if (json.uninstall) {
-          var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.uninstall))).text();
-          localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = uninst;
-        }
-        cli.log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
-        if (!config.installed.includes(pkgname)) {
-          config.installed.push(pkgname);
-        }
-        localStorage[".pkg93/config.json"] = JSON.stringify(config);
-        return true;
+      };
+      try {
+        xhr.send();
       } catch (err) {
         cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-        return false;
+        callback(false, err);
       }
     }
   },
@@ -227,7 +286,7 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
     } else if (protected.includes(args[1])) {
       cli.log("<b><span style='color:#f00'>ERR</span></b>  You're trying to modify a pre-installed Windows93 app.\n      <b>Don't do that!</b>");
     } else {
-      await pkg93.get(args[1], cli);
+      await pkg93.get(args[1], cli, function() {});
     }
   } else if (args[0] == "rm") {
     if (args.length < 2) {

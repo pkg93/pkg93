@@ -17,9 +17,11 @@ module.exports = {
     "ecmaVersion": 2017
   },
   "globals": {
-    "$log": function(a) {},
+    "$log": function(){},
     "le": {
       apps: {}
-    }
+    },
+    "$window": function(){},
+    "$alert": function(){}
   }
 };
