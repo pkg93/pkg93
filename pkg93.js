@@ -69,27 +69,31 @@ var pkg93 = {
       xhr.onprogress = e => {
         bardiv.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
       };
-      xhr.onerror = () => {
-        cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
-      };
-      xhr.onload = () => {
-        var json = JSON.parse(xhr.responseText);
-        cli.log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
-        cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
-        for (let item of json.packages) {
-          try {
-            cli.log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
-            config.pkglist.push(item + "@" + source);
-          } catch (err) {
-            cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+      return new Promise((res, rej) => {
+        xhr.onerror = () => {
+          cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
+          rej();
+        };
+        xhr.onload = () => {
+          var json = JSON.parse(xhr.responseText);
+          cli.log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
+          cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
+          for (let item of json.packages) {
+            try {
+              cli.log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
+              config.pkglist.push(item + "@" + source);
+            } catch (err) {
+              cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+            }
           }
-        }
-      };
-      xhr.send();
+          res();
+        };
+        xhr.send();
+      });
     }
     localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
-  get: async function(pkg, cli, callback) {
+  get: async function(pkg, cli) {
     cli = cli || {log: (i) => {$log(i);}};
     var config = pkg93.getConfig();
     cli.log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg);
@@ -115,66 +119,68 @@ var pkg93 = {
           // fail silently
         }
       };
-      xhr.onerror = () => {
-        cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
-        callback(false);
-      };
-      xhr.onload = () => {
+      return new Promise((res, rej) => {
+        xhr.onerror = () => {
+          cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
+          rej();
+        };
+        xhr.onload = () => {
+          try {
+            cli.log("<b><span style='color:#0f0'>DONE</span></b> " + pkgsource + "/" + pkgname + "/package.json");
+            var json = JSON.parse(xhr.responseText);
+            localStorage[".pkg93/packages/" + pkgname + ".json"] = JSON.stringify(json);
+            cli.log("<b><span style='color:#f0f'>GET</span></b>  " + pkgsource + "/" + pkgname + "/" + json.inject);
+            var bardiv2 = cli.log(_abarpkg93uses(60, 0));
+            var xhr2 = new XMLHttpRequest();
+            xhr2.open("GET", pkgsource + "/" + pkgname + "/" + json.inject);
+            xhr2.setRequestHeader("X-Requested-With", "pkg93");
+            xhr2.onprogress = e => {
+              try {
+                bardiv2.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
+              } catch (err) {
+                // fail silently
+              }
+            };
+            xhr2.onerror = () => {
+              cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving " + pkgsource + "/" + pkgname + "/" + json.inject);
+              rej();
+            };
+            xhr2.onload = async () => {
+              try {
+                cli.log("<b><span style='color:#0f0'>DONE</span></b> " + pkgsource + "/" + pkgname + "/" + json.inject);
+                var script = xhr2.responseText;
+                localStorage[".pkg93/packages/" + pkgname + ".js"] = script;
+                eval(script);
+                if (json.uninstall) {
+                  // no xhr this time
+                  var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.uninstall))).text();
+                  localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = uninst;
+                }
+                cli.log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
+                if (!config.installed.includes(pkgname)) {
+                  config.installed.push(pkgname);
+                }
+                localStorage[".pkg93/config.json"] = JSON.stringify(config);
+                res();
+                // can i go home now
+              } catch (err) {
+                cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+                rej(err);
+              }
+            };
+            xhr2.send();
+          } catch (err) {
+            cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+            rej(err);
+          }
+        };
         try {
-          cli.log("<b><span style='color:#0f0'>DONE</span></b> " + pkgsource + "/" + pkgname + "/package.json");
-          var json = JSON.parse(xhr.responseText);
-          localStorage[".pkg93/packages/" + pkgname + ".json"] = JSON.stringify(json);
-          cli.log("<b><span style='color:#f0f'>GET</span></b>  " + pkgsource + "/" + pkgname + "/" + json.inject);
-          var bardiv2 = cli.log(_abarpkg93uses(60, 0));
-          var xhr2 = new XMLHttpRequest();
-          xhr2.open("GET", pkgsource + "/" + pkgname + "/" + json.inject);
-          xhr2.setRequestHeader("X-Requested-With", "pkg93");
-          xhr2.onprogress = e => {
-            try {
-              bardiv2.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
-            } catch (err) {
-              // fail silently
-            }
-          };
-          xhr2.onerror = () => {
-            cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving " + pkgsource + "/" + pkgname + "/" + json.inject);
-            callback(false);
-          };
-          xhr2.onload = async () => {
-            try {
-              cli.log("<b><span style='color:#0f0'>DONE</span></b> " + pkgsource + "/" + pkgname + "/" + json.inject);
-              var script = xhr2.responseText;
-              localStorage[".pkg93/packages/" + pkgname + ".js"] = script;
-              eval(script);
-              if (json.uninstall) {
-                // no xhr this time
-                var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.uninstall))).text();
-                localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = uninst;
-              }
-              cli.log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
-              if (!config.installed.includes(pkgname)) {
-                config.installed.push(pkgname);
-              }
-              localStorage[".pkg93/config.json"] = JSON.stringify(config);
-              callback(true);
-              // can i go home now
-            } catch (err) {
-              cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-              callback(false, err);
-            }
-          };
-          xhr2.send();
+          xhr.send();
         } catch (err) {
           cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-          callback(false, err);
+          rej(err);
         }
-      };
-      try {
-        xhr.send();
-      } catch (err) {
-        cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-        callback(false, err);
-      }
+      });
     }
   },
   rm: function(pkg, cli) {
@@ -286,7 +292,7 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
     } else if (protected.includes(args[1])) {
       cli.log("<b><span style='color:#f00'>ERR</span></b>  You're trying to modify a pre-installed Windows93 app.\n      <b>Don't do that!</b>");
     } else {
-      await pkg93.get(args[1], cli, function() {});
+      await pkg93.get(args[1], cli);
     }
   } else if (args[0] == "rm") {
     if (args.length < 2) {
