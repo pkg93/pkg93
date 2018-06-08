@@ -72,7 +72,7 @@ var pkg93 = {
       return new Promise((res, rej) => {
         xhr.onerror = () => {
           cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
-          rej()
+          rej();
         };
         xhr.onload = () => {
           var json = JSON.parse(xhr.responseText);
@@ -86,10 +86,10 @@ var pkg93 = {
               cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
             }
           }
-          res()
+          res();
         };
         xhr.send();
-      })
+      });
     }
     localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
@@ -180,7 +180,7 @@ var pkg93 = {
           cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
           rej(err);
         }
-      })
+      });
     }
   },
   rm: function(pkg, cli) {
