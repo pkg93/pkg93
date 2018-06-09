@@ -155,7 +155,8 @@ You can specify where output goes by adding an extra argument with the format be
 ```js
 {
   log: function(input) {
-    // output the input variable
+    // output the input variable (which is html)
+    // if you are outputting to a html document, you must return the element you just added
   }
 }
 ```
