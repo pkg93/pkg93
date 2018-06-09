@@ -80,18 +80,18 @@ var pkg93 = {
           cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
           for (let item of json.packages) {
             try {
-              cli.log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
               config.pkglist.push(item + "@" + source);
+              cli.log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
             } catch (err) {
               cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
             }
           }
+          localStorage[".pkg93/config.json"] = JSON.stringify(config);
           res();
         };
         xhr.send();
       });
     }
-    localStorage[".pkg93/config.json"] = JSON.stringify(config);
   },
   get: async function(pkg, cli) {
     cli = cli || {log: (i) => {$log(i);}};
