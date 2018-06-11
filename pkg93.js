@@ -1,3 +1,31 @@
+//                         ....
+//                       ..****..
+//                     ..,,****,,....
+//                   ..,,,,....,,,,,,....
+//                 ..,,..        ..,,,,,,....
+//               ..,,..              ..,,**//,,..
+//             ..**,,..                ,,((##//,,....
+//           ..,,****,,..            ,,((##((,,,,,,,,....
+//         ..,,,,..,,,,,,,,..      ,,((##((,,..,,**,,,,,,..
+//       ..,,..      ..,,,,,,,,..,,//##((,,  ..**//****,,,,,,
+//     ..,,..            ..,,****//((//,,    ..,,**//**,,**//..
+//   ..,,..                ..,,//((//**..        ..,,,,,,((##,,
+// ..,,,,..              ,,**,,,,********,,..        ,,//####,,
+// ..****,,..          ,,****,,......,,******,,....,,//((####,,
+// ..**//****,,....  ..**//,,..        ..,,********//((((####,,
+// ..**//////******,,,,**,,..              ..,,//####((((##((..
+// ..//((////////**//((**..                ..,,((%%##((##((,,
+// ..//##((((//////((##//,,..              ,,//##%%####((,,
+//   ..**((((((((//((%%((****,,....      ,,//((##&&%%((,,
+//       ..**((##((##%%((////****,,....,,//((((##&#,,
+//           ..**((##%%##////////******//((((((####**
+//               ..**((##((((//////////((((((##((,,
+//                   ..**((((((((//////((((##((,,
+//                       ..**((##((((//((##((,,
+//                           ..**((((((##((,,
+//                               ..**((((,,
+//                                   ....
+
 async function wrap(f) {
   var originalPrompt = this.cli.prompt.innerHTML;
   var originalOnenter = this.cli.onenter;
@@ -21,10 +49,10 @@ async function wrap(f) {
 }
 
 console.group("[pkg93]");
-console.log("[pkg93] Injecting packages...");
+console.log("%c[pkg93]%c Injecting packages...", "font-weight:bold", "font-weight:normal");
 try {
   if (localStorage[".pkg93/config.json"] === undefined) {
-    console.log("[pkg93] You seem new. Creating config...");
+    console.log("%c[pkg93]%c You seem new. Creating config...", "font-weight:bold", "font-weight:normal");
     localStorage[".pkg93/config.json"] = `{"repos": ["//codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}`;
   }
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
@@ -32,19 +60,37 @@ try {
     eval(localStorage[".pkg93/packages/" + pkg + ".js"]);
   }
 } catch (err) {
-  console.error("[pkg93] Couldn't load package information.");
+  console.error("%c[pkg93]%c Couldn't load package information.", "font-weight:bold", "font-weight:normal");
 }
-console.log("[pkg93] Done!");
+console.log("%c[pkg93]%c Done!", "font-weight:bold", "font-weight:normal");
 console.groupEnd();
 
 // thanks robbie! sauce: https://gist.github.com/robbie0630/e1386fb10676598e7d60d4f406a41042
+// note: this is a modified version
 var _abarpkg93uses = (width, percent) => {
   if (percent > 1) percent = 1;
-  let barwidth = width - 7;
-  let pbar = "[";
+  let barwidth = width - 9;
+  let ticker = "\\";
+  switch (Math.floor(percent * 100) % 4) {
+  case 1:
+    ticker = "|";
+    break;
+  case 2:
+    ticker = "/";
+    break;
+  case 3:
+    ticker = "-";
+    break;
+  default:
+    ticker = "\\";
+    break;
+  }
+  ticker = Math.floor(percent) == 1 ? "<span style='color:#0f0'>✔️</span>" : ticker;
+  let pbar = "[<span style='color:#0f0'>";
   for (let i = 0; i < Math.floor(percent*barwidth); ++i) pbar += "=";
+  pbar += "</span><span style='color:#555'>";
   for (let i = 0; i < Math.ceil((1-percent)*barwidth); ++i) pbar += "-";
-  pbar += "] " + Math.floor(percent * 100) + "%";
+  pbar += "</span>] " + Math.floor(percent * 100) + "% " + ticker.padStart(4 - (percent * 100).toFixed().length);
   return pbar;
 };
 
@@ -265,6 +311,7 @@ async function _pkg93execdonotcallplsusetheapi(cli) {
 <span style="color:#0f0">info</span> <span style="color:#77f">[pkg]</span>                Gets information on a package
 <span style="color:#0f0">ls</span> <span style="color:#77f">[pkgs|installed|repos]</span> Lists packages, installed
                         packages or repositories.
+<span style="color:#0f0">credits</span>                   Displays the credits
 <b><u>Color meanings</u></b>
 <b><span style="color:#f0f">Executing</span> <span style="color:#0f0">OK</span> <span style="color:#f00">Error</span> <span style="color:#ff0">Warning</span> <span style="color:#00f">Info</span></b>
 
