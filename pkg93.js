@@ -94,7 +94,6 @@ var _abarpkg93uses = (width, percent) => {
   return pbar;
 };
 
-
 var pkg93 = {
   getConfig: function() {
     try {
@@ -107,42 +106,57 @@ var pkg93 = {
     cli = cli || {log: (i) => {$log(i);}};
     var config = pkg93.getConfig();
     config.pkglist = [];
-    for (let source of config.repos) {
-      cli.log("<b><span style='color:#f0f'>GET</span></b>  " + source + "/repo.json");
-      var bardiv = cli.log(_abarpkg93uses(60, 0));
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", source + "/repo.json", true);
-      xhr.onprogress = e => {
-        bardiv.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
-      };
-      return new Promise((res, rej) => {
-        xhr.onerror = () => {
-          cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
-          rej();
-        };
-        xhr.onload = () => {
-          var json = JSON.parse(xhr.responseText);
-          cli.log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
-          cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
-          for (let item of json.packages) {
+    return new Promise((res, rej) => {
+      for (let source of config.repos) {
+        try {
+          console.log(source);
+          cli.log("<b><span style='color:#f0f'>GET</span></b>  " + source + "/repo.json");
+          var bardiv = cli.log(_abarpkg93uses(60, 0));
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", source + "/repo.json", true);
+          xhr.onprogress = e => {
+            bardiv.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
+          };
+          xhr.onerror = () => {
+            cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
+          };
+          xhr.onload = () => {
             try {
-              config.pkglist.push(item + "@" + source);
-              cli.log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
+              console.log(xhr.responseText);
+              var json = JSON.parse(xhr.responseText);
+              cli.log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
+              cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
+              for (let item of json.packages) {
+                try {
+                  config.pkglist.push(item + "@" + source);
+                  cli.log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
+                } catch (err) {
+                  cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+                }
+              }
             } catch (err) {
+              console.error(err);
               cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+              console.log(xhr.responseText);
+              rej();
             }
-          }
-          localStorage[".pkg93/config.json"] = JSON.stringify(config);
-          res();
-        };
-        xhr.send();
-      });
-    }
+          };
+          xhr.send();
+        } catch (err) {
+          cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+        } finally {
+          delete window.xhr;
+        }
+      }
+      localStorage[".pkg93/config.json"] = JSON.stringify(config);
+      res();
+    });
   },
-  get: async function(pkg, cli) {
+  get: async function(pkg, ver, cli) {
     cli = cli || {log: (i) => {$log(i);}};
+    ver = ver || "latest";
     var config = pkg93.getConfig();
-    cli.log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg);
+    cli.log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg + "@" + ver);
     var index = config.pkglist.findIndex(function(string) {
       return string.split("@")[0] == pkg;
     });
@@ -153,10 +167,11 @@ var pkg93 = {
       cli.log("<b><span style='color:#0f0'>OK</span></b>   Found!");
       var pkgname = config.pkglist[index].split("@")[0];
       var pkgsource = config.pkglist[index].split("@")[1];
-      cli.log("<b><span style='color:#f0f'>GET</span></b>  " + pkgsource + "/" + pkgname + "/package.json");
+      var dest = pkgsource + "/" + pkgname + "/package.json";
+      cli.log("<b><span style='color:#f0f'>GET</span></b>  " + dest);
       var bardiv = cli.log(_abarpkg93uses(60, 0));
       var xhr = new XMLHttpRequest();
-      xhr.open("GET", pkgsource + "/" + pkgname + "/package.json", true);
+      xhr.open("GET", dest, true);
       xhr.setRequestHeader("X-Requested-With", "pkg93");
       xhr.onprogress = e => {
         try {
@@ -172,13 +187,20 @@ var pkg93 = {
         };
         xhr.onload = () => {
           try {
-            cli.log("<b><span style='color:#0f0'>DONE</span></b> " + pkgsource + "/" + pkgname + "/package.json");
+            if (xhr.status != 200) {
+              throw new Error("Got status " + xhr.status + " from server.");
+            }
+            cli.log("<b><span style='color:#0f0'>DONE</span></b> " + dest);
             var json = JSON.parse(xhr.responseText);
             localStorage[".pkg93/packages/" + pkgname + ".json"] = JSON.stringify(json);
-            cli.log("<b><span style='color:#f0f'>GET</span></b>  " + pkgsource + "/" + pkgname + "/" + json.inject);
+            if (ver == "latest") {
+              ver = json.versions[0];
+            }
+            var dest2 = pkgsource + "/" + pkgname + "/" + ver + "/" + json.inject;
+            cli.log("<b><span style='color:#f0f'>GET</span></b>  " + dest2);
             var bardiv2 = cli.log(_abarpkg93uses(60, 0));
             var xhr2 = new XMLHttpRequest();
-            xhr2.open("GET", pkgsource + "/" + pkgname + "/" + json.inject);
+            xhr2.open("GET", dest2, true);
             xhr2.setRequestHeader("X-Requested-With", "pkg93");
             xhr2.onprogress = e => {
               try {
@@ -188,18 +210,21 @@ var pkg93 = {
               }
             };
             xhr2.onerror = () => {
-              cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving " + pkgsource + "/" + pkgname + "/" + json.inject);
+              cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving " + dest2);
               rej();
             };
             xhr2.onload = async () => {
               try {
-                cli.log("<b><span style='color:#0f0'>DONE</span></b> " + pkgsource + "/" + pkgname + "/" + json.inject);
+                if (xhr2.status != 200) {
+                  throw new Error("Got status " + xhr2.status + " from server.");
+                }
+                cli.log("<b><span style='color:#0f0'>DONE</span></b> " + dest2);
                 var script = xhr2.responseText;
                 localStorage[".pkg93/packages/" + pkgname + ".js"] = script;
                 eval(script);
                 if (json.uninstall) {
                   // no xhr this time
-                  var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.uninstall))).text();
+                  var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + ver + "/" + json.uninstall))).text();
                   localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = uninst;
                 }
                 cli.log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
@@ -310,14 +335,11 @@ async function _pkg93execdonotcallplsusetheapi(cli) {
 <span style="color:#0f0">rm-repo</span> <span style="color:#77f">[id]</span>              Removes a repository
 <span style="color:#0f0">info</span> <span style="color:#77f">[pkg]</span>                Gets information on a package
 <span style="color:#0f0">ls</span> <span style="color:#77f">[pkgs|installed|repos]</span> Lists packages, installed
-                        packages or repositories.
+                          packages or repositories.
 <span style="color:#0f0">credits</span>                   Displays the credits
+
 <b><u>Color meanings</u></b>
 <b><span style="color:#f0f">Executing</span> <span style="color:#0f0">OK</span> <span style="color:#f00">Error</span> <span style="color:#ff0">Warning</span> <span style="color:#00f">Info</span></b>
-
-<b><u>Examples</u></b>
-pkg93 <span style="color:#0f0">get</span> <span style="color:#77f">gud</span>
-pkg93 <span style="color:#0f0">rm</span> <span style="color:#77f">kebab</span>
 
 If you find my software useful, consider donating <a style="color: #00f;" href="http://codinggamerhd.com/donate.html">here</a>.
 `;
@@ -339,7 +361,8 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
     } else if (protected.includes(args[1])) {
       cli.log("<b><span style='color:#f00'>ERR</span></b>  You're trying to modify a pre-installed Windows93 app.\n      <b>Don't do that!</b>");
     } else {
-      await pkg93.get(args[1], cli);
+      var split = args[1].split("@");
+      await pkg93.get(split[0], split[1], cli);
     }
   } else if (args[0] == "rm") {
     if (args.length < 2) {
