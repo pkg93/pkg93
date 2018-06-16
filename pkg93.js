@@ -154,11 +154,10 @@ var pkg93 = {
       res();
     });
   },
-  get: async function(pkg, ver, cli) {
+  get: async function(pkg, cli) {
     cli = cli || {log: (i) => {$log(i);}};
-    ver = ver || "latest";
     var config = pkg93.getConfig();
-    cli.log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg + "@" + ver);
+    cli.log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg);
     var index = config.pkglist.findIndex(function(string) {
       return string.split("@")[0] == pkg;
     });
@@ -195,10 +194,7 @@ var pkg93 = {
             cli.log("<b><span style='color:#0f0'>DONE</span></b> " + dest);
             var json = JSON.parse(xhr.responseText);
             localStorage[".pkg93/packages/" + pkgname + ".json"] = JSON.stringify(json);
-            if (ver == "latest") {
-              ver = json.versions[0];
-            }
-            var dest2 = pkgsource + "/" + pkgname + "/" + ver + "/" + json.inject;
+            var dest2 = pkgsource + "/" + pkgname + "/" + json.inject;
             cli.log("<b><span style='color:#f0f'>GET</span></b>  " + dest2);
             var bardiv2 = cli.log(_abarpkg93uses(60, 0));
             var xhr2 = new XMLHttpRequest();
@@ -226,7 +222,7 @@ var pkg93 = {
                 eval(script);
                 if (json.uninstall) {
                   // no xhr this time
-                  var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + ver + "/" + json.uninstall))).text();
+                  var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.uninstall))).text();
                   localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = uninst;
                 }
                 cli.log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
@@ -363,8 +359,7 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
     } else if (protected.includes(args[1])) {
       cli.log("<b><span style='color:#f00'>ERR</span></b>  You're trying to modify a pre-installed Windows93 app.\n      <b>Don't do that!</b>");
     } else {
-      var split = args[1].split("@");
-      await pkg93.get(split[0], split[1], cli);
+      await pkg93.get(args[1], cli);
     }
   } else if (args[0] == "rm") {
     if (args.length < 2) {
