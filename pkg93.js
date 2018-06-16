@@ -106,47 +106,49 @@ var pkg93 = {
     cli = cli || {log: (i) => {$log(i);}};
     var config = pkg93.getConfig();
     config.pkglist = [];
-    return new Promise((res, rej) => {
+    return new Promise(async (res, rej) => {
       for (let source of config.repos) {
-        try {
-          console.log(source);
-          cli.log("<b><span style='color:#f0f'>GET</span></b>  " + source + "/repo.json");
-          var bardiv = cli.log(_abarpkg93uses(60, 0));
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", source + "/repo.json", true);
-          xhr.onprogress = e => {
-            bardiv.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
-          };
-          xhr.onerror = () => {
-            cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
-          };
-          xhr.onload = () => {
-            try {
-              console.log(xhr.responseText);
-              var json = JSON.parse(xhr.responseText);
-              cli.log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
-              cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
-              for (let item of json.packages) {
-                try {
-                  config.pkglist.push(item + "@" + source);
-                  cli.log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
-                } catch (err) {
-                  cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+        await new Promise(async (reso, reje) => {
+          try {
+            console.log(source);
+            cli.log("<b><span style='color:#f0f'>GET</span></b>  " + source + "/repo.json");
+            var bardiv = cli.log(_abarpkg93uses(60, 0));
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", source + "/repo.json", true);
+            xhr.onprogress = e => {
+              bardiv.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
+            };
+            xhr.onerror = () => {
+              cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
+            };
+            xhr.onload = () => {
+              try {
+                console.log(xhr.responseText);
+                var json = JSON.parse(xhr.responseText);
+                cli.log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
+                cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
+                for (let item of json.packages) {
+                  try {
+                    config.pkglist.push(item + "@" + source);
+                    cli.log("<b><span style='color:#0f0'>OK</span></b>   " + item + "@" + source);
+                  } catch (err) {
+                    cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+                  }
                 }
+                reso();
+              } catch (err) {
+                console.error(err);
+                cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+                console.log(xhr.responseText);
+                reje();
               }
-            } catch (err) {
-              console.error(err);
-              cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-              console.log(xhr.responseText);
-              rej();
-            }
-          };
-          xhr.send();
-        } catch (err) {
-          cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-        } finally {
-          delete window.xhr;
-        }
+            };
+            xhr.send();
+          } catch (err) {
+            cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
+            rej();
+          }
+        });
       }
       localStorage[".pkg93/config.json"] = JSON.stringify(config);
       res();
