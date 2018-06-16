@@ -110,7 +110,6 @@ var pkg93 = {
       for (let source of config.repos) {
         await new Promise(async (reso, reje) => {
           try {
-            console.log(source);
             cli.log("<b><span style='color:#f0f'>GET</span></b>  " + source + "/repo.json");
             var bardiv = cli.log(_abarpkg93uses(60, 0));
             var xhr = new XMLHttpRequest();
@@ -123,7 +122,6 @@ var pkg93 = {
             };
             xhr.onload = () => {
               try {
-                console.log(xhr.responseText);
                 var json = JSON.parse(xhr.responseText);
                 cli.log("<b><span style='color:#0f0'>NAME</span></b> " + json.name);
                 cli.log("<b><span style='color:#0f0'>MSG</span></b>  " + json.msg);
@@ -139,7 +137,6 @@ var pkg93 = {
               } catch (err) {
                 console.error(err);
                 cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-                console.log(xhr.responseText);
                 reje();
               }
             };
@@ -417,7 +414,6 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
       } else {
         var depends = pkgInfo.dependencies ? pkgInfo.dependencies.join(" , ") : "<i><span style='color:#444'>None!</span></i>";
         var description = pkgInfo.description ? pkgInfo.description : "<i><span style='color:#444'>None!</span></i>";
-        console.log(pkgInfo);
         cli.log(`<b><u>${pkgInfo.name}</u></b>
 Description: ${description}
 Dependencies: ${depends}`);
