@@ -53,20 +53,33 @@ console.log("%c[pkg93]%c Injecting packages...", "font-weight:bold", "font-weigh
 try {
   if (localStorage[".pkg93/config.json"] === undefined) {
     console.log("%c[pkg93]%c You seem new. Creating config...", "font-weight:bold", "font-weight:normal");
-    localStorage[".pkg93/config.json"] = `{"repos": ["//codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}`;
+    localStorage[".pkg93/config.json"] = `{"repos": ["https://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}`;
   }
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
   for (let pkg of config.installed) {
     eval(localStorage[".pkg93/packages/" + pkg + ".js"]);
   }
 } catch (err) {
-  console.error("%c[pkg93]%c Couldn't load package information.", "font-weight:bold", "font-weight:normal");
+  console.error("%c[pkg93]%c Couldn't load pkg93!", "font-weight:bold", "font-weight:normal");
+  console.error("%c[pkg93]%c %o", "font-weight:bold", "font-weight:normal", err);
+  $alert({
+    title: "Couldn't load pkg93!",
+    msg: "<pre style='text-align: left'>" + (err.stack || err.toString()) + "</pre>",
+    btnOk: "Send a bug report", btnCancel: "OK"
+  }, function(ok) {
+    if (ok) {
+      window.open("https://github.com/pkg93/pkg93/issues/new" +
+        "?title=" + encodeURIComponent(err.toString()) +
+        "&body=Type what you were doing here...%0A%0A```%0A" + encodeURIComponent(err.stack) + "%0A```",
+      "_blank");
+    }
+  });
 }
 console.log("%c[pkg93]%c Done!", "font-weight:bold", "font-weight:normal");
 console.groupEnd();
 
 // thanks robbie! sauce: https://gist.github.com/robbie0630/e1386fb10676598e7d60d4f406a41042
-// note: this is a modified version
+// NOTE: this is a modified version
 var _abarpkg93uses = (width, percent) => {
   if (percent > 1) percent = 1;
   let barwidth = width - 9;
@@ -108,7 +121,7 @@ var pkg93 = {
     config.pkglist = [];
     return new Promise(async (res, rej) => {
       for (let source of config.repos) {
-        await new Promise(async (reso, reje) => {
+        await new Promise(async (reso) => {
           try {
             cli.log("<b><span style='color:#f0f'>GET</span></b>  " + source + "/repo.json");
             var bardiv = cli.log(_abarpkg93uses(60, 0));
@@ -137,7 +150,7 @@ var pkg93 = {
               } catch (err) {
                 console.error(err);
                 cli.log("<b><span style='color:#f00'>ERR</span></b>  " + err.message);
-                reje();
+                rej();
               }
             };
             xhr.send();
@@ -336,10 +349,10 @@ async function _pkg93execdonotcallplsusetheapi(cli) {
 <b><u>Color meanings</u></b>
 <b><span style="color:#f0f">Executing</span> <span style="color:#0f0">OK</span> <span style="color:#f00">Error</span> <span style="color:#ff0">Warning</span> <span style="color:#00f">Info</span></b>
 
-If you find my software useful, consider donating <a style="color: #00f;" href="http://codinggamerhd.com/donate.html">here</a>.
+If you find my software useful, consider donating <a style="color: #00f;" href="https://codinggamerhd.com/donate.html">here</a>.
 `;
   if (localStorage[".pkg93/config.json"] === undefined) {
-    localStorage[".pkg93/config.json"] = "{\"repos\": [\"//codinggamerhd.com/main-repo\"], \"installed\": [], \"pkglist\": []}";
+    localStorage[".pkg93/config.json"] = "{\"repos\": [\"https://codinggamerhd.com/main-repo\"], \"installed\": [], \"pkglist\": []}";
   }
   if (localStorage[".pkg93/packages/"] === undefined) {
     localStorage[".pkg93/packages/"] = "";
@@ -408,15 +421,23 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
     if (args.length > 2) {
       cli.log("<b><span style='color:#f00'>ERR</span></b>  No package specified.");
     } else {
-      var pkgInfo = await pkg93.pkgInfo(args[1]);
-      if (!pkgInfo) {
-        cli.log("<b><span style='color:#f00'>ERR</span></b>  Either the package doesn't exist, or an error occoured.");
-      } else {
-        var depends = pkgInfo.dependencies ? pkgInfo.dependencies.join(" , ") : "<i><span style='color:#444'>None!</span></i>";
-        var description = pkgInfo.description ? pkgInfo.description : "<i><span style='color:#444'>None!</span></i>";
-        cli.log(`<b><u>${pkgInfo.name}</u></b>
-Description: ${description}
-Dependencies: ${depends}`);
+      try {
+        var pkgInfo = await pkg93.pkgInfo(args[1]);
+        if (pkgInfo instanceof Error) {
+          // There's a Error in my pkgInfo!
+          throw pkgInfo;
+        }
+        if (!pkgInfo) {
+          cli.log("<b><span style='color:#f00'>ERR</span></b>  Package not found.");
+        } else {
+          var depends = pkgInfo.dependencies ? pkgInfo.dependencies.join(" , ") : "<i><span style='color:#444'>None!</span></i>";
+          var description = pkgInfo.description ? pkgInfo.description : "<i><span style='color:#444'>None!</span></i>";
+          cli.log(`<b><u>${pkgInfo.name}</u></b>
+  Description: ${description}
+  Dependencies: ${depends}`);
+        }
+      } catch (err) {
+        cli.log("<b><span style='color:#f00'>ERR</span></b>  Error while getting package info.\n" + err.stack);
       }
     }
   } else if (args[0] == "help") {
