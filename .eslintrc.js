@@ -19,7 +19,7 @@ module.exports = {
   "globals": {
     "$log": function(){},
     "le": {
-      apps: {}
+      "_apps": {}
     },
     "$window": function(){},
     "$alert": function(){}

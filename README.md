@@ -40,15 +40,15 @@ Here's an example:
 Finally put all the packages in seperate folders named after the package.
 The end result should look like this:
 ```
-example-repo
+example-repo/
 ├── repo.json
-├── examplepkg1
+├── examplepkg1/
 │   │ (package files go here)
 │   └── package.json
-├── examplepkg2
+├── examplepkg2/
 │   │ (package files go here)
 │   └── package.json
-└── examplepkg3
+└── examplepkg3/
     │ (package files go here)
     └── package.json
 ```
@@ -59,28 +59,32 @@ Then, you want to make a file called package.json in the folder.
 In it, there should be 4 keys.
 - `name`: **Must be the same as the folder name and command name!** (unless you've provided a uninstaller)
 - `description` A description of your package.
+- `versions` All versions of your package, newest version goes first, oldest version goes last.
 - `inject`: It should be the name of the injection script.
 - `uninstall`: Optional, It should be the name of the uninstaller script, if it doesn't exist pkg93 will simply delete the command for you.
-- `dependencies`: Optional, Packages this package depends on. These will be automatically installed.
 Here's a example:
 ```json
 {
   "name": "examplepkg",
   "description": "my kewl pakeg!!11",
+  "versions": [
+    "1.0.0",
+    "0.9.0"
+  ],
   "inject": "installer.js",
-  "uninstall": "optionaluninstaller.js",
-  "dependencies": [
-    "anoptionaldependency",
-    "anotherone"
-  ]
+  "uninstall": "optionaluninstaller.js"
 }
 ```
 And the directory structure:
 ```
-examplepkg
+examplepkg/
 ├── package.json
-├── installer.js
-└── optionaluninstaller.js
+├── 1.0.0/
+│   ├── installer.js
+│   └── optionaluninstaller.js
+└── 0.9.9/
+    ├── installer.js
+    └── optionaluninstaller.js
 ```
 
 ## API
@@ -137,10 +141,10 @@ if (succeded) {
 ```
 
 ### `pkg93.pkginfo(package)`
-Returns the package.json of `package` or `false` if it failed.
+Returns the package.json of `package` or an error if it failed.
 ```js
 package = await pkg93.pkgInfo("wget93");
-if (package == false) {
+if (package instanceof Error) {
   alert("Something went wrong...");
 } else {
   alert("wget93's description is: " + package.description);

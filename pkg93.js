@@ -29,7 +29,7 @@
 async function wrap(f) {
   var originalPrompt = this.cli.prompt.innerHTML;
   var originalOnenter = this.cli.onenter;
-  try  {
+  try {
     this.cli.prompt.innerHTML = "";
     this.cli.onenter = () => false;
     var lastLog = $log("");
@@ -42,6 +42,10 @@ async function wrap(f) {
       },
       arg: this.arg
     });
+  } catch (err) {
+    console.error(err);
+    this.cli.prompt.innerHTML = originalPrompt;
+    this.cli.onenter = originalOnenter;
   } finally {
     this.cli.prompt.innerHTML = originalPrompt;
     this.cli.onenter = originalOnenter;
@@ -65,19 +69,15 @@ try {
   $alert({
     title: "Couldn't load pkg93!",
     msg: "<pre style='text-align: left'>" + (err.stack || err.toString()) + "</pre>",
-    btnOk: "Send a bug report", btnCancel: "OK"
-  }, function(ok) {
-    if (ok) {
-      window.open("https://github.com/pkg93/pkg93/issues/new" +
-        "?title=" + encodeURIComponent(err.toString()) +
-        "&body=Type what you were doing here...%0A%0A```%0A" + encodeURIComponent(err.stack) + "%0A```",
-      "_blank");
-    }
+    img: "/c/sys/skins/w93/error.png",
+    icon: "//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png"
   });
 }
 console.log("%c[pkg93]%c Done!", "font-weight:bold", "font-weight:normal");
 console.groupEnd();
 
+
+var errbar = "[<span style=\"color:#0f0\"></span><span style=\"color:#555\">---------------------------------------------------</span>] ERR! <span style=\"color:#f00\">!</span>";
 // thanks robbie! sauce: https://gist.github.com/robbie0630/e1386fb10676598e7d60d4f406a41042
 // NOTE: this is a modified version
 var _abarpkg93uses = (width, percent) => {
@@ -131,7 +131,11 @@ var pkg93 = {
               bardiv.innerHTML = _abarpkg93uses(60, e.loaded / e.total);
             };
             xhr.onerror = () => {
+              bardiv.innerHTML = errbar;
               cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
+              if (xhr.status != 0) {
+                cli.log("<b><span style='color:#f00'>ERR</span></b>  " + xhr.status + " " + xhr.statusText);
+              }
             };
             xhr.onload = () => {
               try {
@@ -164,8 +168,9 @@ var pkg93 = {
       res();
     });
   },
-  get: async function(pkg, cli) {
+  get: async function(pkg, version, cli) {
     cli = cli || {log: (i) => {$log(i);}};
+    version = version || "latest";
     var config = pkg93.getConfig();
     cli.log("<b><span style='color:#f0f'>SRCH</span></b> " + pkg);
     var index = config.pkglist.findIndex(function(string) {
@@ -193,18 +198,24 @@ var pkg93 = {
       };
       return new Promise((res, rej) => {
         xhr.onerror = () => {
+          bardiv.innerHTML = errbar;
           cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving package.json.");
+          if (xhr.status == 0) {
+            cli.log("<b><span style='color:#f00'>ERR</span></b>  " + xhr.status + " " + xhr.statusText);
+          }
           rej();
         };
         xhr.onload = () => {
           try {
-            if (xhr.status != 200) {
-              throw new Error("Got status " + xhr.status + " from server.");
-            }
             cli.log("<b><span style='color:#0f0'>DONE</span></b> " + dest);
             var json = JSON.parse(xhr.responseText);
             localStorage[".pkg93/packages/" + pkgname + ".json"] = JSON.stringify(json);
-            var dest2 = pkgsource + "/" + pkgname + "/" + json.inject;
+            if (!json.versions) {
+              cli.log("<b><span style='color:#ff0'>WARN</span></b> This package does not support versioning, using latest\n<b>    </b> version instead.");
+            } else {
+              version = (version == "latest") ? json.versions[0] : version;
+            }
+            var dest2 = pkgsource + "/" + pkgname + "/" + (json.versions ? version + "/" : "") + json.inject;
             cli.log("<b><span style='color:#f0f'>GET</span></b>  " + dest2);
             var bardiv2 = cli.log(_abarpkg93uses(60, 0));
             var xhr2 = new XMLHttpRequest();
@@ -218,7 +229,11 @@ var pkg93 = {
               }
             };
             xhr2.onerror = () => {
+              bardiv2.innerHTML = errbar;
               cli.log("<b><span style='color:#f00'>ERR</span></b>  Fatal error while retriving " + dest2);
+              if (xhr2.status != 0) {
+                cli.log("<b><span style='color:#f00'>ERR</span></b>  " + xhr2.status + " " + xhr2.statusText);
+              }
               rej();
             };
             xhr2.onload = async () => {
@@ -232,10 +247,9 @@ var pkg93 = {
                 eval(script);
                 if (json.uninstall) {
                   // no xhr this time
-                  var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + json.uninstall))).text();
+                  var uninst = await (await (fetch(pkgsource + "/" + pkgname + "/" + (json.versions ? version + "/" : "") + json.uninstall))).text();
                   localStorage[".pkg93/packages/" + pkgname + ".rm.js"] = uninst;
                 }
-                cli.log("<b><span style='color:#0f0'>OK</span></b>   Injected package!");
                 if (!config.installed.includes(pkgname)) {
                   config.installed.push(pkgname);
                 }
@@ -344,7 +358,6 @@ async function _pkg93execdonotcallplsusetheapi(cli) {
 <span style="color:#0f0">info</span> <span style="color:#77f">[pkg]</span>                Gets information on a package
 <span style="color:#0f0">ls</span> <span style="color:#77f">[pkgs|installed|repos]</span> Lists packages, installed
                           packages or repositories.
-<span style="color:#0f0">credits</span>                   Displays the credits
 
 <b><u>Color meanings</u></b>
 <b><span style="color:#f0f">Executing</span> <span style="color:#0f0">OK</span> <span style="color:#f00">Error</span> <span style="color:#ff0">Warning</span> <span style="color:#00f">Info</span></b>
@@ -369,7 +382,9 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
     } else if (protected.includes(args[1])) {
       cli.log("<b><span style='color:#f00'>ERR</span></b>  You're trying to modify a pre-installed Windows93 app.\n      <b>Don't do that!</b>");
     } else {
-      await pkg93.get(args[1], cli);
+      var name = args[1].split("@")[0];
+      var version = args[1].split("@")[1];
+      await pkg93.get(name, version, cli);
     }
   } else if (args[0] == "rm") {
     if (args.length < 2) {
@@ -430,11 +445,11 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
         if (!pkgInfo) {
           cli.log("<b><span style='color:#f00'>ERR</span></b>  Package not found.");
         } else {
-          var depends = pkgInfo.dependencies ? pkgInfo.dependencies.join(" , ") : "<i><span style='color:#444'>None!</span></i>";
           var description = pkgInfo.description ? pkgInfo.description : "<i><span style='color:#444'>None!</span></i>";
-          cli.log(`<b><u>${pkgInfo.name}</u></b>
-  Description: ${description}
-  Dependencies: ${depends}`);
+          var vers = pkgInfo.versions ? pkgInfo.versions.join(", ") : "<i><span style='color:#444'>None!</span></i>";
+          cli.log(`<b><u>${args[1]}</u></b>
+Description: ${description}
+Versions: ${vers}`);
         }
       } catch (err) {
         cli.log("<b><span style='color:#f00'>ERR</span></b>  Error while getting package info.\n" + err.stack);
@@ -454,7 +469,7 @@ If you find my software useful, consider donating <a style="color: #00f;" href="
 
 le._apps.pkg93 = {
   exec: function() { wrap.call(this, _pkg93execdonotcallplsusetheapi); },
-  icon: "//cdn.rawgit.com/1024x2/pkg93/70039c02/pkg.png",
+  icon: "//cdn.rawgit.com/pkg93/pkg93/70039c02/pkg.png",
   terminal: true,
   hascli: true,
   categories: "Network;Utility;Settings;PackageManager"
