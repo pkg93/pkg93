@@ -11,7 +11,6 @@ $alert({
     var _main = `var interval = setInterval(function () {
   try {
     if (!!le) {
-      localStorage[".pkg93/userscript"] = "";
       clearInterval(interval);
       $loader.script("https://${_pkg93cdn ? "cdn." : ""}rawgit.com/pkg93/pkg93/${_pkg93tagtoinstall}/pkg93.js");
     }
