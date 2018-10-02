@@ -57,7 +57,7 @@ console.log("%c[pkg93]%c Injecting packages...", "font-weight:bold", "font-weigh
 try {
   if (localStorage[".pkg93/config.json"] === undefined) {
     console.log("%c[pkg93]%c You seem new. Creating config...", "font-weight:bold", "font-weight:normal");
-    localStorage[".pkg93/config.json"] = `{"repos": ["https://codinggamerhd.com/main-repo"], "installed": [], "pkglist": []}`;
+    localStorage[".pkg93/config.json"] = `{"repos": ["https://1024x2.xyz/main-repo"], "installed": [], "pkglist": []}`;
   }
   var config = JSON.parse(localStorage[".pkg93/config.json"]);
   for (let pkg of config.installed) {
@@ -291,18 +291,14 @@ var pkg93 = {
       delete localStorage[".pkg93/packages/" + pkg + ".json"];
       config.installed.splice(index, 1);
       cli.log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
+      return true;
     } else {
       try {
-        if (le._apps[config.installed[index]] === null) {
-          cli.log("<b><span style='color:#f00'>ERR</span></b>  Already removed.");
-          return false;
-        } else {
-          delete le._apps[config.installed[index]];
-          delete localStorage[".pkg93/packages/" + config.installed[index] + ".js"];
-          delete localStorage[".pkg93/packages/" + config.installed[index] + ".json"];
-          config.installed.splice(index, 1);
-          cli.log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
-        }
+        delete le._apps[config.installed[index]];
+        delete localStorage[".pkg93/packages/" + config.installed[index] + ".js"];
+        delete localStorage[".pkg93/packages/" + config.installed[index] + ".json"];
+        config.installed.splice(index, 1);
+        cli.log("<b><span style='color:#0f0'>OK</span></b>   Removed!");
         localStorage[".pkg93/config.json"] = JSON.stringify(config);
         return true;
       } catch (err) {
@@ -362,10 +358,10 @@ async function _pkg93execdonotcallplsusetheapi(cli) {
 <b><u>Color meanings</u></b>
 <b><span style="color:#f0f">Executing</span> <span style="color:#0f0">OK</span> <span style="color:#f00">Error</span> <span style="color:#ff0">Warning</span> <span style="color:#00f">Info</span></b>
 
-If you find my software useful, consider donating <a style="color: #00f;" href="https://codinggamerhd.com/donate.html">here</a>.
+If you find my software useful, consider donating <a style="color: #00f;" href="https://1024x2.xyz/donate.html">here</a>.
 `;
   if (localStorage[".pkg93/config.json"] === undefined) {
-    localStorage[".pkg93/config.json"] = "{\"repos\": [\"https://codinggamerhd.com/main-repo\"], \"installed\": [], \"pkglist\": []}";
+    localStorage[".pkg93/config.json"] = "{\"repos\": [\"https://1024x2.xyz/main-repo\"], \"installed\": [], \"pkglist\": []}";
   }
   if (localStorage[".pkg93/packages/"] === undefined) {
     localStorage[".pkg93/packages/"] = "";
