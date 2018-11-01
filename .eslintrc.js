@@ -1,7 +1,8 @@
 module.exports = {
   "env": {
     "browser": true,
-    "es6": true
+    "es6": true,
+    "node": true
   },
   "extends": "eslint:recommended",
   "rules": {
@@ -14,7 +15,8 @@ module.exports = {
     "no-console": 0
   },
   "parserOptions": {
-    "ecmaVersion": 2017
+    "ecmaVersion": 9,
+    "sourceType": "module"
   },
   "globals": {
     "$log": function(){},
@@ -22,6 +24,7 @@ module.exports = {
       "_apps": {}
     },
     "$window": function(){},
-    "$alert": function(){}
+    "$alert": function(){},
+    "pkg93": {}
   }
 };
