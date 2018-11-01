@@ -2,7 +2,6 @@ sudo: false
 dist: trusty
 language: node_js
 node_js: node
-install: npm i
 script:
   - npm run test
   - npm run build
