@@ -1,6 +1,7 @@
+sudo: false
+dist: trusty
 language: node_js
-node_js: "nodejs"
-install: npm i --save-dev
+node_js: nodejs
 script:
   - npm run test
   - npm run build
