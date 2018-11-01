@@ -6,7 +6,8 @@
   "scripts": {
     "test": "eslint .",
     "build": "webpack",
-    "build-install": "webpack --config webpack.install.config.js"
+    "build-install": "webpack --config webpack.install.config.js",
+    "build-both": "npm run build && npm run build-install"
   },
   "repository": {
     "type": "git",
