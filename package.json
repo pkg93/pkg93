@@ -4,9 +4,9 @@
   "description": "A package manager for Windows93!",
   "main": "pkg93.js",
   "scripts": {
-    "test": "node_modules/.bin/eslint .",
-    "build": "node_modules/.bin/webpack",
-    "build-install": "node_modules/.bin/webpack --config webpack.install.config.js"
+    "test": "eslint .",
+    "build": "webpack",
+    "build-install": "webpack --config webpack.install.config.js"
   },
   "repository": {
     "type": "git",
@@ -20,9 +20,10 @@
   "homepage": "https://github.com/pkg93/pkg93#readme",
   "devDependencies": {
     "eslint": "^5.6.1",
-    "raw-loader": "^0.5.1",
     "webpack": "^4.23.1",
     "webpack-cli": "^3.1.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "raw-loader": "^0.5.1"
+  }
 }

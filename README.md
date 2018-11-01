@@ -1,4 +1,4 @@
-# pkg93 [![Test](https://img.shields.io/travis/pkg93/pkg93.svg?label=test)](https://travis-ci.org/pkg93/pkg93)
+# pkg93 [![Build Status](https://travis-ci.org/pkg93/pkg93.svg?branch=master)](https://travis-ci.org/pkg93/pkg93)
 
 A package manager for Windows 93!
 
