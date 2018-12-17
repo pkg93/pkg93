@@ -5,9 +5,9 @@
   "main": "pkg93.js",
   "scripts": {
     "test": "eslint .",
-    "build": "webpack",
-    "build-install": "webpack --config webpack.install.config.js",
-    "build-both": "npm run build && npm run build-install"
+    "build": "npm run build-code && npm run build-install",
+    "build-code": "webpack",
+    "build-install": "webpack --config webpack.install.config.js"
   },
   "repository": {
     "type": "git",

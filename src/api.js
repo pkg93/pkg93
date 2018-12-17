@@ -254,7 +254,7 @@ var pkg93 = {
     log: ()=>{},
     arg: {arguments:[]}
   },
-  version: "v2.0.0beta2"
+  version: "v2.0.0"
 };
 
 export { pkg93 };
