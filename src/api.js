@@ -1,5 +1,5 @@
 var errbar = "[<span style=\"color:#0f0\"></span><span style=\"color:#555\">---------------------------------------------------</span>] ERR! <span style=\"color:#f00\">!</span>";
-// thanks robbie! sauce: https://gist.github.com/robbie0630/e1386fb10676598e7d60d4f406a41042
+// thanks litevx! sauce: https://gist.github.com/robbie0630/e1386fb10676598e7d60d4f406a41042
 // NOTE: this is a modified version
 var _abarpkg93uses = (width, percent) => {
   if (percent > 1) percent = 1;
